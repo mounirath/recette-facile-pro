@@ -32,12 +32,15 @@ const schema = defineSchema(
       role: v.optional(roleValidator), // role of the user. do not remove
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
-    // add other tables here
-
-    // tableName: defineTable({
-    //   ...
-    //   // table fields
-    // }).index("by_field", ["field"])
+    // per-user completion of each course/recipe lesson
+    courseProgress: defineTable({
+      userId: v.id("users"),
+      courseSlug: v.string(),
+      completed: v.boolean(),
+      completedAt: v.optional(v.number()),
+    })
+      .index("by_user", ["userId"])
+      .index("by_user_course", ["userId", "courseSlug"]),
   },
   {
     schemaValidation: false,

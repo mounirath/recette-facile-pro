@@ -1,16 +1,16 @@
 {
-  "name": "freebuff.com application",
-  "short_name": "freebuff.com",
-  "description": "freebuff.com application",
+  "name": "Savonnerie Pro — Formation fabrication FR/AR",
+  "short_name": "Savonnerie Pro",
+  "description": "Formation bilingue FR/AR : recettes détaillées et méthodes de fabrication de produits d'entretien et de soin.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#faf7f0",
+  "theme_color": "#177a7c",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/logo.svg",
       "sizes": "any",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]

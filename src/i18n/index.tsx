@@ -1,0 +1,485 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+
+export type Lang = "fr" | "ar";
+
+const fr = {
+  brand: "Savonnerie Pro",
+  brandTag: "Académie de fabrication",
+  nav: {
+    courses: "Cours",
+    recipes: "Recettes",
+    pricing: "Formules",
+    faq: "FAQ",
+    dashboard: "Mon espace",
+  },
+  cta: {
+    signIn: "Se connecter",
+    getStarted: "Commencer gratuitement",
+    explore: "Explorer les recettes",
+    viewRecipe: "Voir la recette",
+    back: "Retour aux cours",
+    signOut: "Déconnexion",
+  },
+  hero: {
+    badge: "Formation bilingue Français · العربية",
+    title: "Fabriquez vos produits d'entretien et de soin comme un pro",
+    subtitle:
+      "Des recettes détaillées pas à pas, avec les pourcentages exacts, les méthodes de fabrication, les précautions et un calculateur de lots — en français et en arabe.",
+    primaryCta: "Commencer la formation",
+    secondaryCta: "Voir les recettes",
+    stats: [
+      { value: "18+", label: "Recettes complètes" },
+      { value: "3", label: "Modules de formation" },
+      { value: "FR·AR", label: "Bilingue intégral" },
+      { value: "100%", label: "Méthodes détaillées" },
+    ],
+  },
+  features: {
+    kicker: "Pourquoi nous rejoindre",
+    title: "Tout ce qu'il faut pour fabriquer sereinement",
+    items: [
+      {
+        title: "Recettes détaillées",
+        desc: "Chaque formule précise les pourcentages exacts, l'ordre d'incorporation et les points de vigilance.",
+      },
+      {
+        title: "Calculateur de lots",
+        desc: "Convertissez automatiquement les pourcentages en grammes pour la quantité que vous voulez produire.",
+      },
+      {
+        title: "Méthodes pas à pas",
+        desc: "Des étapes claires, numérotées et illustrées, de la pesée au conditionnement.",
+      },
+      {
+        title: "Bilingue FR / AR",
+        desc: "Tout le contenu est disponible en français et en arabe, avec interface RTL complète.",
+      },
+    ],
+  },
+  sections: {
+    kicker: "Le programme",
+    title: "Trois modules, 18 recettes professionnelles",
+    subtitle:
+      "Des détergents maison aux soins corporels : chaque module couvre les matières premières, la sécurité et le conditionnement.",
+  },
+  sample: {
+    kicker: "Aperçu gratuit",
+    title: "Un extrait des recettes incluses",
+    subtitle:
+      "Chaque fiche contient les ingrédients, les pourcentages, la méthode complète et les avertissements de sécurité.",
+    locked: "Débloquées après connexion",
+  },
+  pricing: {
+    kicker: "Formules d'abonnement",
+    title: "Des tarifs simples et détaillés",
+    subtitle:
+      "Commencez gratuitement, passez à la vitesse supérieure quand vous êtes prêt. Sans engagement.",
+    perMonth: "/ mois",
+    popular: "Le plus choisi",
+    choose: "Choisir cette formule",
+    current: "Commencer",
+    plans: [
+      {
+        name: "Découverte",
+        price: "0",
+        desc: "Idéal pour tester la méthode",
+        features: [
+          "Accès aux 10 recettes d'entretien",
+          "Calculateur de lots (5 L max)",
+          "Version française",
+          "Fiches téléchargeables basiques",
+        ],
+      },
+      {
+        name: "Artisan",
+        price: "19",
+        desc: "Pour produire et vendre en toute confiance",
+        features: [
+          "Les 18 recettes, tous modules",
+          "Calculateur de lots illimité",
+          "Contenu bilingue FR + AR",
+          "Fiches techniques PDF complètes",
+          "Suivi de progression et certificat",
+        ],
+      },
+      {
+        name: "Business",
+        price: "49",
+        desc: "Pour les ateliers et petites marques",
+        features: [
+          "Tout le plan Artisan",
+          "Coût matière par lot et marges",
+          "Conseils réglementation et étiquetage",
+          "Support prioritaire par email",
+        ],
+      },
+    ],
+  },
+  faq: {
+    kicker: "Questions fréquentes",
+    title: "Vous vous posez ces questions ?",
+    items: [
+      {
+        q: "Faut-il une expérience en chimie pour suivre la formation ?",
+        a: "Non. Chaque recette est expliquée étape par étape, avec les précautions d'usage. Les formules risquées (javellisant, dégraissant four) portent des avertissements clairs : gants, lunettes et ventilation.",
+      },
+      {
+        q: "Où trouver les matières premières ?",
+        a: "Les ingrédients (Texapon, Betaine, Cocamide DEA, acide citrique…) sont disponibles chez les fournisseurs de matières premières cosmétiques et détergentes, en ligne ou en grosserie.",
+      },
+      {
+        q: "La formation est-elle vraiment bilingue ?",
+        a: "Oui : chaque ingrédient, chaque étape et chaque avertissement existe en français et en arabe. Un bouton permet de basculer toute l'interface, y compris le sens de lecture RTL.",
+      },
+      {
+        q: "Le calculateur de lots, comment ça marche ?",
+        a: "Vous choisissez une recette et le volume souhaité (en litres ou en kilos) : l'outil convertit chaque pourcentage en grammes précis, prêts pour la pesée.",
+      },
+      {
+        q: "Puis-je vendre les produits que je fabrique ?",
+        a: "La vente de détergents et cosmétiques est encadrée (déclaration, étiquetage, normes locales). La formation vous donne la base technique ; renseignez-vous auprès des autorités de votre pays.",
+      },
+    ],
+  },
+  footer: {
+    disclaimer:
+      "Les recettes sont fournies à titre pédagogique. Respectez les consignes de sécurité, portez équipements de protection et conservez les produits hors de portée des enfants.",
+    rights: "Tous droits réservés.",
+  },
+  auth: {
+    welcome: "Bon retour",
+    signInTitle: "Commencer l'aventure",
+    signInDesc: "Entrez votre email pour vous connecter ou créer un compte",
+    or: "ou",
+    guest: "Continuer en invité",
+    checkTitle: "Vérifiez votre boîte mail",
+    checkDesc: "Nous avons envoyé un code à",
+    codeLabel: "Code de vérification",
+    verify: "Vérifier le code",
+    verifying: "Vérification…",
+    noCode: "Code non reçu ?",
+    tryAgain: "Réessayer",
+    differentEmail: "Utiliser un autre email",
+    errSend: "Impossible d'envoyer le code. Réessayez.",
+    errCode: "Le code saisi est incorrect.",
+    errGuest: "Échec de la connexion invité",
+    secured: "Connexion sécurisée",
+  },
+  dash: {
+    kicker: "Espace de formation",
+    welcome: "Bienvenue",
+    subtitle: "Choisissez une recette, suivez la méthode, validez votre progression.",
+    searchPlaceholder: "Rechercher une recette (nom ou ingrédient)…",
+    allSections: "Tous les modules",
+    progress: "Progression",
+    completed: "terminée",
+    recipesDone: "recettes terminées",
+    startLesson: "Commencer la leçon",
+    continueLesson: "Reprendre",
+    review: "Revoir",
+    ingredients: "Ingrédients",
+    steps: "Méthode de fabrication",
+    warnings: "Avertissements de sécurité",
+    tips: "Conseils du formateur",
+    batchTitle: "Calculateur de lot",
+    batchDesc: "Choisissez le volume total à produire, les grammes sont calculés automatiquement.",
+    liters: "Volume total",
+    grams: "g",
+    kg: "kg",
+    markDone: "Marquer comme terminée",
+    markedDone: "Leçon terminée",
+    markUndone: "Annuler la validation",
+    lessonOf: "Leçon",
+    difficulty: "Difficulté",
+    levels: ["Facile", "Intermédiaire", "Avancé"],
+    yieldLabel: "Rendement",
+    certTitle: "Certificat de fin de formation",
+    certDesc: "Terminez les 18 recettes pour débloquer votre certificat.",
+    certUnlocked: "Félicitations ! Formation complétée.",
+    noResults: "Aucune recette ne correspond à votre recherche.",
+    percents: "Pourcentages",
+    sum: "Total",
+    guestHint: "Mode invité : votre progression est stockée localement.",
+  },
+  notFound: {
+    title: "Page introuvable",
+    desc: "Cette page n'existe pas ou a été déplacée.",
+    home: "Retour à l'accueil",
+  },
+};
+
+const ar: typeof fr = {
+  brand: "صابونتي برو",
+  brandTag: "أكاديمية التصنيع",
+  nav: {
+    courses: "الدورات",
+    recipes: "الوصفات",
+    pricing: "الصيغ",
+    faq: "الأسئلة الشائعة",
+    dashboard: "مساحتي",
+  },
+  cta: {
+    signIn: "تسجيل الدخول",
+    getStarted: "ابدأ مجاناً",
+    explore: "استكشف الوصفات",
+    viewRecipe: "عرض الوصفة",
+    back: "العودة إلى الدورات",
+    signOut: "تسجيل الخروج",
+  },
+  hero: {
+    badge: "تكوين ثنائي اللغة Français · العربية",
+    title: "اصنع منتجات التنظيف والعناية باحترافية",
+    subtitle:
+      "وصفات مفصلة خطوة بخطوة، مع النسب المئوية الدقيقة، طرق التصنيع، التحذيرات، وحاسبة الكميات — بالفرنسية والعربية.",
+    primaryCta: "ابدأ التكوين",
+    secondaryCta: "شاهد الوصفات",
+    stats: [
+      { value: "+18", label: "وصفة كاملة" },
+      { value: "3", label: "وحدات تكوين" },
+      { value: "FR·AR", label: "ثنائي اللغة" },
+      { value: "100%", label: "طرق مفصلة" },
+    ],
+  },
+  features: {
+    kicker: "لماذا تنضم إلينا",
+    title: "كل ما تحتاجه للتصنيع بأمان وثقة",
+    items: [
+      {
+        title: "وصفات مفصلة",
+        desc: "كل صيغة تحدد النسب المئوية الدقيقة، ترتيب الإضافة، ونقاط الانتباه.",
+      },
+      {
+        title: "حاسبة الكميات",
+        desc: "حوّل النسب المئوية تلقائياً إلى غرامات حسب الكمية التي تريد إنتاجها.",
+      },
+      {
+        title: "طرق خطوة بخطوة",
+        desc: "خطوات واضحة ومرقمة ومصوّرة، من الوزن إلى التعبئة.",
+      },
+      {
+        title: "فرنسي / عربي",
+        desc: "كل المحتوى متوفر بالفرنسية والعربية، مع واجهة كاملة من اليمين إلى اليسار.",
+      },
+    ],
+  },
+  sections: {
+    kicker: "البرنامج",
+    title: "ثلاث وحدات، 18 وصفة احترافية",
+    subtitle:
+      "من المنظفات المنزلية إلى مستحضرات العناية الشخصية: كل وحدة تغطي المواد الأولية والسلامة والتعبئة.",
+  },
+  sample: {
+    kicker: "استعراض مجاني",
+    title: "نموذج من الوصفات المضمّنة",
+    subtitle:
+      "كل بطاقة تحتوي على المكونات، النسب، الطريقة الكاملة، وتحذيرات السلامة.",
+    locked: "تُفتح بعد تسجيل الدخول",
+  },
+  pricing: {
+    kicker: "صيغ الاشتراك",
+    title: "أسعار بسيطة ومفصلة",
+    subtitle: "ابدأ مجاناً، وارتقِ عندما تكون جاهزاً. بدون التزام.",
+    perMonth: "/ شهرياً",
+    popular: "الأكثر اختياراً",
+    choose: "اختر هذه الصيغة",
+    current: "ابدأ",
+    plans: [
+      {
+        name: "الاستكشاف",
+        price: "0",
+        desc: "مثالي لتجربة الطريقة",
+        features: [
+          "الوصول إلى 10 وصفات منزلية",
+          "حاسبة كميات (حتى 5 لتر)",
+          "النسخة الفرنسية",
+          "بطاقات تحميل أساسية",
+        ],
+      },
+      {
+        name: "الحرفي",
+        price: "19",
+        desc: "للإنتاج والبيع بثقة",
+        features: [
+          "18 وصفة في كل الوحدات",
+          "حاسبة كميات غير محدودة",
+          "محتوى ثنائي اللغة فرنسي + عربي",
+          "ملفات تقنية PDF كاملة",
+          "تتبع التقدم والشهادة",
+        ],
+      },
+      {
+        name: "الأعمال",
+        price: "49",
+        desc: "للورشات والعلامات الصغيرة",
+        features: [
+          "كل مزايا خطة الحرفي",
+          "تكلفة المواد لكل دفعة والهوامش",
+          "نصائح التنظيم ووضع الملصقات",
+          "دعم ذو أولوية عبر البريد",
+        ],
+      },
+    ],
+  },
+  faq: {
+    kicker: "أسئلة متكررة",
+    title: "هل تخطر لك هذه الأسئلة؟",
+    items: [
+      {
+        q: "هل أحتاج خبرة في الكيمياء لمتابعة التكوين؟",
+        a: "لا. كل وصفة مشروحة خطوة بخطوة مع احتياطات الاستعمال. الصيغ الحساسة (الجافيل، مزيل دهون الفرن) تحمل تحذيرات واضحة: قفازات، نظارات واقية، وتهوية جيدة.",
+      },
+      {
+        q: "أين أجد المواد الأولية؟",
+        a: "المكونات (تيكسابون، بيتائين، كواميد DEA، حمض الستريك…) متوفرة لدى موردي المواد الأولية للتجميل والمنظفات، عبر الإنترنت أو من محلات الجملة.",
+      },
+      {
+        q: "هل التكوين ثنائي اللغة فعلاً؟",
+        a: "نعم: كل مكوّن وكل خطوة وكل تحذير موجود بالفرنسية والعربية. زر واحد يبدّل الواجهة بأكملها، بما في ذلك اتجاه القراءة من اليمين إلى اليسار.",
+      },
+      {
+        q: "كيف تعمل حاسبة الكميات؟",
+        a: "تختار وصفة والحجم المطلوب (باللترات أو الكيلوغرامات): تحوّل الأداة كل نسبة مئوية إلى غرامات دقيقة جاهزة للوزن.",
+      },
+      {
+        q: "هل يمكنني بيع المنتجات التي أصنعها؟",
+        a: "بيع المنظفات ومستحضرات التجميل خاضع للتنظيم (التصريح، وضع الملصقات، المعايير المحلية). التكوين يمنحك الأساس التقني؛ استشر السلطات المختصة في بلدك.",
+      },
+    ],
+  },
+  footer: {
+    disclaimer:
+      "الوصفات مقدمة لأغراض تعليمية. التزم بقواعد السلامة، استعمل معدات الحماية، واحفظ المنتجات بعيداً عن متناول الأطفال.",
+    rights: "جميع الحقوق محفوظة.",
+  },
+  auth: {
+    welcome: "مرحباً بعودتك",
+    signInTitle: "ابدأ الرحلة",
+    signInDesc: "أدخل بريدك الإلكتروني لتسجيل الدخول أو إنشاء حساب",
+    or: "أو",
+    guest: "المتابعة كضيف",
+    checkTitle: "تحقق من بريدك الوارد",
+    checkDesc: "أرسلنا رمزاً إلى",
+    codeLabel: "رمز التحقق",
+    verify: "تحقق من الرمز",
+    verifying: "جارٍ التحقق…",
+    noCode: "لم يصلك الرمز؟",
+    tryAgain: "حاول مجدداً",
+    differentEmail: "استخدم بريداً آخر",
+    errSend: "تعذّر إرسال الرمز. حاول مجدداً.",
+    errCode: "الرمز الذي أدخلته غير صحيح.",
+    errGuest: "فشل تسجيل الدخول كضيف",
+    secured: "اتصال آمن",
+  },
+  dash: {
+    kicker: "مساحة التكوين",
+    welcome: "أهلاً",
+    subtitle: "اختر وصفة، اتبع الطريقة، وسجّل تقدمك.",
+    searchPlaceholder: "ابحث عن وصفة (اسم أو مكوّن)…",
+    allSections: "كل الوحدات",
+    progress: "التقدم",
+    completed: "مكتملة",
+    recipesDone: "وصفات مكتملة",
+    startLesson: "ابدأ الدرس",
+    continueLesson: "تابع",
+    review: "مراجعة",
+    ingredients: "المكونات",
+    steps: "طريقة التحضير",
+    warnings: "تحذيرات السلامة",
+    tips: "نصائح المدرّب",
+    batchTitle: "حاسبة الدفعة",
+    batchDesc: "اختر الحجم الإجمالي للإنتاج، وتُحسب الغرامات تلقائياً.",
+    liters: "الحجم الإجمالي",
+    grams: "غ",
+    kg: "كغ",
+    markDone: "وضع علامة مكتملة",
+    markedDone: "تم إكمال الدرس",
+    markUndone: "إلغاء الإكمال",
+    lessonOf: "درس",
+    difficulty: "الصعوبة",
+    levels: ["سهل", "متوسط", "متقدم"],
+    yieldLabel: "الناتج",
+    certTitle: "شهادة إتمام التكوين",
+    certDesc: "أكمل الـ 18 وصفة لفتح شهادتك.",
+    certUnlocked: "تهانينا! تم إكمال التكوين.",
+    noResults: "لا توجد وصفة مطابقة لبحثك.",
+    percents: "النسب المئوية",
+    sum: "المجموع",
+    guestHint: "وضع الضيف: يُحفظ تقدمك محلياً.",
+  },
+  notFound: {
+    title: "الصفحة غير موجودة",
+    desc: "هذه الصفحة غير موجودة أو تم نقلها.",
+    home: "العودة إلى الرئيسية",
+  },
+};
+
+export const dictionaries = { fr, ar } as const;
+export type Dict = typeof fr;
+
+interface LangCtx {
+  lang: Lang;
+  setLang: (l: Lang) => void;
+  t: Dict;
+  dir: "ltr" | "rtl";
+}
+
+const LanguageContext = createContext<LangCtx | null>(null);
+
+const STORAGE_KEY = "savonnerie-lang";
+
+function getInitialLang(): Lang {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === "fr" || stored === "ar") return stored;
+  } catch {
+    /* ignore */
+  }
+  return "fr";
+}
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [lang, setLangState] = useState<Lang>(getInitialLang);
+
+  const setLang = useCallback((l: Lang) => {
+    setLangState(l);
+    try {
+      localStorage.setItem(STORAGE_KEY, l);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.lang = lang;
+    root.dir = lang === "ar" ? "rtl" : "ltr";
+  }, [lang]);
+
+  const value = useMemo<LangCtx>(
+    () => ({
+      lang,
+      setLang,
+      t: dictionaries[lang],
+      dir: lang === "ar" ? "rtl" : "ltr",
+    }),
+    [lang, setLang],
+  );
+
+  return (
+    <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>
+  );
+}
+
+export function useLang(): LangCtx {
+  const ctx = useContext(LanguageContext);
+  if (!ctx) throw new Error("useLang must be used within LanguageProvider");
+  return ctx;
+}
