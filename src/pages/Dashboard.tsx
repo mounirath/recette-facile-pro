@@ -26,7 +26,8 @@ import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/i18n";
 import { COURSES, SECTIONS, totalPercent, type Course } from "@/data/courses";
-import { CourseArt } from "@/components/CourseArt";
+import { CoursePhoto } from "@/components/CoursePhoto";
+import { HERO_PHOTO, EXTRA_PHOTOS } from "@/data/photos";
 import {
   DishIcon,
   SoapIcon,
@@ -54,7 +55,6 @@ import {
   ChartIcon,
   SafetyIcon,
   LabelIcon,
-  LabScene,
 } from "@/components/Illustrations";
 
 const ICONS = {
@@ -219,9 +219,16 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="relative overflow-hidden rounded-3xl border border-border/70 bg-bubbles p-6 shadow-sm sm:p-8"
+              className="relative overflow-hidden rounded-3xl border border-border/70 p-6 shadow-sm sm:p-8"
             >
-              <div className="flex flex-col gap-6 md:flex-row md:items-center">
+              <img
+                src={HERO_PHOTO}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+                draggable={false}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/40 dark:from-background/95 dark:via-background/80 dark:to-background/30" />
+              <div className="relative flex flex-col gap-6 md:flex-row md:items-center">
                 <div className="flex-1">
                   <p className="flex items-center gap-2 text-sm font-semibold text-primary">
                     <GraduationCap className="size-4" />
@@ -250,8 +257,15 @@ export default function Dashboard() {
                     </span>
                   </div>
                 </div>
-                <div className="hidden md:block">
-                  <LabScene className="w-56 text-primary/80" />
+                <div className="hidden shrink-0 md:block">
+                  <div className="overflow-hidden rounded-2xl border border-border/60 shadow-lg">
+                    <img
+                      src={EXTRA_PHOTOS.lab}
+                      alt=""
+                      className="h-36 w-56 object-cover"
+                      draggable={false}
+                    />
+                  </div>
                 </div>
               </div>
             </motion.section>
@@ -361,9 +375,9 @@ export default function Dashboard() {
                                 <Circle className="size-5 text-border" />
                               )}
                             </div>
-                            <CourseArt
+                            <CoursePhoto
                               slug={course.slug}
-                              className="mt-3 h-24 w-full rounded-xl bg-primary/5 text-primary"
+                              className="mt-3 h-28 w-full rounded-xl object-cover"
                             />
                             <h3 className="mt-3 font-display text-base font-semibold leading-snug">
                               {course.title[lang]}
@@ -446,9 +460,9 @@ function CourseDetail({
 
       {/* Title card */}
       <Card className="mt-3 overflow-hidden border-border/70 shadow-sm">
-        <CourseArt
+        <CoursePhoto
           slug={course.slug}
-          className="h-36 w-full bg-primary/5 text-primary sm:h-44"
+          className="h-40 w-full object-cover sm:h-48"
         />
         <CardContent className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
           <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">

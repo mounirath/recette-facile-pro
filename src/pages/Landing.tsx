@@ -58,7 +58,8 @@ import {
   LabScene,
 } from "@/components/Illustrations";
 import type { Course } from "@/data/courses";
-import { CourseArt } from "@/components/CourseArt";
+import { CoursePhoto } from "@/components/CoursePhoto";
+import { HERO_PHOTO, SECTION_PHOTOS } from "@/data/photos";
 
 const ICONS = {
   dish: DishIcon,
@@ -237,9 +238,20 @@ export default function Landing() {
             </dl>
           </div>
 
-          <div className="relative hidden justify-center md:flex">
-            <div className="animate-float">
-              <HeroBottles className="w-full max-w-md text-primary drop-shadow-xl" />
+          <div className="relative hidden md:flex">
+            <div className="relative w-full max-w-lg">
+              <div className="overflow-hidden rounded-3xl border border-border/70 shadow-2xl shadow-primary/20">
+                <img
+                  src={HERO_PHOTO}
+                  alt=""
+                  className="h-80 w-full object-cover lg:h-96"
+                  draggable={false}
+                />
+                <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/10" />
+              </div>
+              <div className="animate-float absolute -bottom-5 -start-5 rounded-2xl border border-border/70 bg-card/95 p-4 shadow-lg backdrop-blur">
+                <HeroBottles className="w-24 text-primary" />
+              </div>
             </div>
           </div>
         </div>
@@ -304,12 +316,23 @@ export default function Landing() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.4, delay: i * 0.1 }}
-                  className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-sm"
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md"
                 >
-                  <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                    <CourseIcon icon={section.icon} className="size-7" />
+                  <div className="relative h-36 overflow-hidden">
+                    <img
+                      src={SECTION_PHOTOS[section.id]}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      draggable={false}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                    <div className="absolute bottom-3 start-4 flex size-12 items-center justify-center rounded-2xl bg-card/95 shadow-md ring-1 ring-border">
+                      <CourseIcon icon={section.icon} className="size-7" />
+                    </div>
                   </div>
-                  <h3 className="mt-4 font-display text-xl font-bold">
+                  <div className="flex flex-1 flex-col p-6">
+                  <h3 className="font-display text-xl font-bold">
                     {section.name[lang]}
                   </h3>
                   <p className="mt-1.5 text-sm text-muted-foreground">
@@ -335,6 +358,7 @@ export default function Landing() {
                   >
                     {t.cta.explore}
                   </Button>
+                  </div>
                 </motion.div>
               );
             })}
@@ -372,9 +396,9 @@ export default function Landing() {
                   {t.dash.levels[course.difficulty]}
                 </Badge>
               </div>
-              <CourseArt
+              <CoursePhoto
                 slug={course.slug}
-                className="mt-4 h-28 w-full rounded-xl bg-primary/5 text-primary"
+                className="mt-4 h-32 w-full rounded-xl object-cover"
               />
               <h3 className="mt-4 font-display text-lg font-semibold leading-snug">
                 {course.title[lang]}
@@ -532,9 +556,9 @@ export default function Landing() {
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
           {sample && (
             <>
-              <CourseArt
+              <CoursePhoto
                 slug={sample.slug}
-                className="h-32 w-full rounded-xl bg-primary/5 text-primary"
+                className="h-40 w-full rounded-xl object-cover"
               />
               <DialogHeader>
                 <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
