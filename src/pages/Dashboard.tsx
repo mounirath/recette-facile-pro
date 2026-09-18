@@ -26,6 +26,7 @@ import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/i18n";
 import { COURSES, SECTIONS, totalPercent, type Course } from "@/data/courses";
+import { CourseArt } from "@/components/CourseArt";
 import {
   DishIcon,
   SoapIcon,
@@ -360,6 +361,10 @@ export default function Dashboard() {
                                 <Circle className="size-5 text-border" />
                               )}
                             </div>
+                            <CourseArt
+                              slug={course.slug}
+                              className="mt-3 h-24 w-full rounded-xl bg-primary/5 text-primary"
+                            />
                             <h3 className="mt-3 font-display text-base font-semibold leading-snug">
                               {course.title[lang]}
                             </h3>
@@ -441,6 +446,10 @@ function CourseDetail({
 
       {/* Title card */}
       <Card className="mt-3 overflow-hidden border-border/70 shadow-sm">
+        <CourseArt
+          slug={course.slug}
+          className="h-36 w-full bg-primary/5 text-primary sm:h-44"
+        />
         <CardContent className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
           <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <CourseIcon icon={course.icon} className="size-9" />

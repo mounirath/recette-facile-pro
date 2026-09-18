@@ -58,6 +58,7 @@ import {
   LabScene,
 } from "@/components/Illustrations";
 import type { Course } from "@/data/courses";
+import { CourseArt } from "@/components/CourseArt";
 
 const ICONS = {
   dish: DishIcon,
@@ -371,6 +372,10 @@ export default function Landing() {
                   {t.dash.levels[course.difficulty]}
                 </Badge>
               </div>
+              <CourseArt
+                slug={course.slug}
+                className="mt-4 h-28 w-full rounded-xl bg-primary/5 text-primary"
+              />
               <h3 className="mt-4 font-display text-lg font-semibold leading-snug">
                 {course.title[lang]}
               </h3>
@@ -527,6 +532,10 @@ export default function Landing() {
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
           {sample && (
             <>
+              <CourseArt
+                slug={sample.slug}
+                className="h-32 w-full rounded-xl bg-primary/5 text-primary"
+              />
               <DialogHeader>
                 <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                   <CourseIcon icon={sample.icon} className="size-7" />
