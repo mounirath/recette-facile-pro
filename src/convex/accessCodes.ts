@@ -263,12 +263,18 @@ export const adminRevokeAccess = mutation({
 /**
  * Public: does the signed-in user have valid (non-expired) access, and until
  * when? Called by the dashboard and RequireAuth.
+ *
+ * state: "active" | "expired" (had access, date passed) | "none" (no grant).
+ * Guests (anonymous) keep lifetime access; email accounts need a code or an
+ * admin grant.
  */
 export const myAccess = query({
   args: {},
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
-    if (userId === null) return { hasAccess: false as const, expiresAt: null };
+    if (userId === null) {
+      return { hasAccess: false as const, expiresAt: null, state: "none" as const };
+    }
 
     const rows = await ctx.db
       .query("accountAccess")
@@ -276,15 +282,27 @@ export const myAccess = query({
       .collect();
 
     const row = rows[0];
-    if (!row) {
-      // Signed-in user without any access record (e.g. legacy guest):
-      // grant lifetime access so existing sessions keep working.
-      return { hasAccess: true as const, expiresAt: null };
+    if (row) {
+      if (row.expiresAt !== undefined && row.expiresAt < Date.now()) {
+        return {
+          hasAccess: false as const,
+          expiresAt: row.expiresAt,
+          state: "expired" as const,
+        };
+      }
+      return {
+        hasAccess: true as const,
+        expiresAt: row.expiresAt ?? null,
+        state: "active" as const,
+      };
     }
-    if (row.expiresAt !== undefined && row.expiresAt < Date.now()) {
-      return { hasAccess: false as const, expiresAt: row.expiresAt };
+
+    // No access record: guests keep access; email accounts are locked.
+    const user = await ctx.db.get(userId);
+    if (user?.isAnonymous === true) {
+      return { hasAccess: true as const, expiresAt: null, state: "active" as const };
     }
-    return { hasAccess: true as const, expiresAt: row.expiresAt ?? null };
+    return { hasAccess: false as const, expiresAt: null, state: "none" as const };
   },
 });
 
@@ -386,48 +404,46 @@ export const claimCode = mutation({
 });
 
 /**
- * Called after a fresh email sign-up: grants access based on the invite code
- * the user entered (expired codes rejected), otherwise the default trial.
+ * Called after a fresh email sign-up. No automatic trial: access is granted
+ * ONLY when a valid (non-expired) invite code is provided. Without a code the
+ * account is created but stays locked until a code is redeemed or the admin
+ * grants access.
  */
 export const grantEmailAccess = mutation({
   args: {
     inviteCode: v.optional(v.string()),
-    trialDays: v.optional(v.number()),
   },
-  handler: async (ctx, { inviteCode, trialDays }) => {
+  handler: async (ctx, { inviteCode }) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
       return { ok: false as const, reason: "not_authenticated" as const };
     }
 
-    // If an invite code is provided, validate and redeem it (keeps its expiry).
-    if (inviteCode) {
-      const normalized = inviteCode.trim().toUpperCase();
-      if (/^[A-Z0-9]{8}$/.test(normalized)) {
-        const row = await ctx.db
-          .query("accessCodes")
-          .withIndex("by_code", (q) => q.eq("code", normalized))
-          .unique();
-        const valid =
-          row &&
-          row.active &&
-          (row.expiresAt === undefined || row.expiresAt > Date.now()) &&
-          (row.usedBy === undefined || row.usedBy === userId);
-        if (valid) {
-          await ctx.db.patch(row._id, {
-            usedBy: userId,
-            usedAt: Date.now(),
-          });
-          await grantAccess(ctx, userId, "code", row.expiresAt);
-          return { ok: true as const, source: "code" as const };
-        }
-      }
-      return { ok: false as const, reason: "invalid_code" as const };
+    if (!inviteCode) {
+      // No trial: account created without access.
+      return { ok: true as const, granted: false as const };
     }
 
-    // Default: time-limited trial.
-    const days = trialDays ?? 7;
-    await grantAccess(ctx, userId, "email", Date.now() + days * 86_400_000);
-    return { ok: true as const, source: "email" as const };
+    const normalized = inviteCode.trim().toUpperCase();
+    if (/^[A-Z0-9]{8}$/.test(normalized)) {
+      const row = await ctx.db
+        .query("accessCodes")
+        .withIndex("by_code", (q) => q.eq("code", normalized))
+        .unique();
+      const valid =
+        row &&
+        row.active &&
+        (row.expiresAt === undefined || row.expiresAt > Date.now()) &&
+        (row.usedBy === undefined || row.usedBy === userId);
+      if (valid) {
+        await ctx.db.patch(row._id, {
+          usedBy: userId,
+          usedAt: Date.now(),
+        });
+        await grantAccess(ctx, userId, "code", row.expiresAt);
+        return { ok: true as const, granted: true as const };
+      }
+    }
+    return { ok: false as const, reason: "invalid_code" as const };
   },
 });

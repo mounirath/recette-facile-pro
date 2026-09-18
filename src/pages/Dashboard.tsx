@@ -206,7 +206,7 @@ export default function Dashboard() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-8">
-        {/* ===== ACCESS EXPIRED ===== */}
+        {/* ===== ACCESS EXPIRED / LOCKED ===== */}
         {access?.hasAccess === false && (
           <motion.section
             initial={{ opacity: 0, y: 12 }}
@@ -217,10 +217,10 @@ export default function Dashboard() {
               <Lock className="size-7 text-destructive" />
             </div>
             <h2 className="mt-4 font-display text-2xl font-bold">
-              {t.dash.expiredTitle}
+              {access.state === "expired" ? t.dash.expiredTitle : t.dash.lockedTitle}
             </h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-              {t.dash.expiredDesc}
+              {access.state === "expired" ? t.dash.expiredDesc : t.dash.lockedDesc}
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
               <Button className="gap-2" onClick={() => navigate("/auth")}>

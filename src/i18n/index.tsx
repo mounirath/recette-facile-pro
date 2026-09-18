@@ -185,7 +185,8 @@ const fr = {
     errEmailInUse: "Un compte existe déjà avec cet e-mail.",
     errEmailPassword: "E-mail ou mot de passe incorrect.",
     errInviteCode: "Code d'invitation invalide ou expiré.",
-    trialNote: "Essai gratuit de 7 jours à l'inscription.",
+    codeRequiredNote:
+      "L'accès à la formation nécessite un code d'accès (aucun essai automatique).",
     secured: "Connexion sécurisée",
   },
   dash: {
@@ -226,6 +227,9 @@ const fr = {
     expiredDesc:
       "La période d'accès à la formation est terminée. Contactez le formateur pour prolonger votre accès ou saisissez un nouveau code.",
     expiredGoAuth: "Utiliser un code d'accès",
+    lockedTitle: "Accès requis",
+    lockedDesc:
+      "Votre compte n'a pas encore d'accès à la formation. Saisissez le code d'accès fourni par le formateur pour débloquer les recettes.",
     noResults: "Aucune recette ne correspond à votre recherche.",
     percents: "Pourcentages",
     sum: "Total",
@@ -472,7 +476,8 @@ const ar: typeof fr = {
     errEmailInUse: "هناك حساب مسجل بهذا البريد بالفعل.",
     errEmailPassword: "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
     errInviteCode: "رمز الدعوة غير صحيح أو منتهي الصلاحية.",
-    trialNote: "تجربة مجانية 7 أيام عند التسجيل.",
+    codeRequiredNote:
+      "الوصول إلى التكوين يتطلب رمز دخول (لا توجد تجربة تلقائية).",
     secured: "اتصال آمن",
   },
   dash: {
@@ -513,6 +518,9 @@ const ar: typeof fr = {
     expiredDesc:
       "انتهت فترة الوصول إلى التكوين. تواصل مع المدرب لتمديد صلاحية حسابك أو أدخل رمزاً جديداً.",
     expiredGoAuth: "استعمال رمز دخول",
+    lockedTitle: "الوصول مطلوب",
+    lockedDesc:
+      "حسابك لا يملك وصولاً إلى التكوين بعد. أدخل رمز الدخول المقدّم من المدرب لفتح الوصفات.",
     noResults: "لا توجد وصفة مطابقة لبحثك.",
     percents: "النسب المئوية",
     sum: "المجموع",

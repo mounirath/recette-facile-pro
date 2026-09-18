@@ -171,7 +171,8 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
         flow: emailMode === "signUp" ? "signUp" : "signIn",
       });
 
-      // After a fresh sign-up, grant access (invite code or 7-day trial).
+      // After a fresh sign-up: NO trial. Access is granted only with a valid
+      // invite code; otherwise the account stays locked (code required).
       if (emailMode === "signUp") {
         const grant = await grantEmailAccess({
           inviteCode: inviteCode.trim().toUpperCase() || undefined,
@@ -369,7 +370,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                     />
                     <p className="text-center text-xs text-muted-foreground">
                       <ShieldCheck className="me-1 inline size-3.5" />
-                      {t.auth.trialNote}
+                      {t.auth.codeRequiredNote}
                     </p>
                   </>
                 )}
