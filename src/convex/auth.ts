@@ -2,8 +2,20 @@
 
 import { convexAuth } from "@convex-dev/auth/server";
 import { Anonymous } from "@convex-dev/auth/providers/Anonymous";
-
+import { Password } from "@convex-dev/auth/providers/Password";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
-  providers: [Anonymous],
+  providers: [
+    Anonymous,
+    Password({
+      profile(params) {
+        return {
+          ...(typeof params.name === "string" && params.name.length > 0
+            ? { name: params.name }
+            : {}),
+          email: params.email as string,
+        };
+      },
+    }),
+  ],
 });

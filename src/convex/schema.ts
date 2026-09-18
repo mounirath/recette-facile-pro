@@ -49,10 +49,22 @@ const schema = defineSchema(
       active: v.boolean(),
       usedBy: v.optional(v.id("users")), // user who redeemed the code
       usedAt: v.optional(v.number()),
+      // Optional expiry date (ms epoch). After this date the code no longer
+      // grants access and (if redeemed) the redeemed account loses access.
+      expiresAt: v.optional(v.number()),
       createdAt: v.number(),
     })
       .index("by_code", ["code"])
       .index("by_created", ["createdAt"]),
+
+    // Per-user paid access: email accounts get access on sign-up; code
+    // redemption extends it. `expiresAt === undefined` means lifetime access.
+    accountAccess: defineTable({
+      userId: v.id("users"),
+      source: v.union(v.literal("email"), v.literal("code")),
+      expiresAt: v.optional(v.number()),
+      grantedAt: v.number(),
+    }).index("by_user", ["userId"]),
   },
   {
     schemaValidation: false,

@@ -55,7 +55,20 @@ type AccessCode = {
   active: boolean;
   used: boolean;
   usedAt: number | null;
+  expiresAt: number | null;
+  expired: boolean;
   createdAt: number;
+};
+
+type AccessUser = {
+  _id: Id<"users">;
+  email: string;
+  name: string | null;
+  createdAt: number;
+  accessExpiresAt: number | null;
+  accessSource: "email" | "code" | null;
+  expired: boolean;
+  hasAccess: boolean;
 };
 
 const SESSION_KEY = "admin_pw_session";
@@ -144,6 +157,7 @@ export default function Admin() {
 
   const [genCount, setGenCount] = useState(1);
   const [genLabel, setGenLabel] = useState("");
+  const [genExpiryDays, setGenExpiryDays] = useState("");
   const [genBusy, setGenBusy] = useState(false);
   const [lastGenerated, setLastGenerated] = useState<string[]>([]);
   const [copiedAll, setCopiedAll] = useState(false);
@@ -154,13 +168,16 @@ export default function Admin() {
     setGenBusy(true);
     setCodesError(null);
     try {
+      const days = parseInt(genExpiryDays, 10);
       const created = await generateCodes({
         password: sessionPw,
         count: genCount,
         label: genLabel.trim() || undefined,
+        expiryDays: Number.isNaN(days) || days <= 0 ? undefined : days,
       });
       setLastGenerated(created);
       setGenLabel("");
+      setGenExpiryDays("");
     } catch (e) {
       setCodesError(e instanceof Error ? e.message : t.admin.errPassword);
     } finally {
@@ -194,6 +211,42 @@ export default function Admin() {
       await deleteCode({ password: sessionPw, codeId: c._id });
     } catch (e) {
       setCodesError(e instanceof Error ? e.message : t.admin.errPassword);
+    }
+  };
+
+  // ---------------------- Users (email accounts) -------------------------
+  const usersResult = useQuery(
+    api.accessCodes.listUsers,
+    sessionPw ? { password: sessionPw } : "skip",
+  );
+  const adminGrantAccess = useMutation(api.accessCodes.adminGrantAccess);
+  const adminRevokeAccess = useMutation(api.accessCodes.adminRevokeAccess);
+  const [grantDays, setGrantDays] = useState<Record<string, string>>({});
+  const [usersError, setUsersError] = useState<string | null>(null);
+
+  const grantUser = async (u: AccessUser) => {
+    if (!sessionPw) return;
+    setUsersError(null);
+    try {
+      const days = parseInt(grantDays[u._id] ?? "", 10);
+      await adminGrantAccess({
+        password: sessionPw,
+        userId: u._id,
+        expiryDays: Number.isNaN(days) || days <= 0 ? undefined : days,
+      });
+      setGrantDays((prev) => ({ ...prev, [u._id]: "" }));
+    } catch (e) {
+      setUsersError(e instanceof Error ? e.message : t.admin.errPassword);
+    }
+  };
+
+  const revokeUser = async (u: AccessUser) => {
+    if (!sessionPw) return;
+    setUsersError(null);
+    try {
+      await adminRevokeAccess({ password: sessionPw, userId: u._id });
+    } catch (e) {
+      setUsersError(e instanceof Error ? e.message : t.admin.errPassword);
     }
   };
 
@@ -355,6 +408,10 @@ export default function Admin() {
                 <Ticket className="me-2 size-4" />
                 {t.admin.tabCodes}
               </TabsTrigger>
+              <TabsTrigger value="users">
+                <Users className="me-2 size-4" />
+                {t.admin.tabUsers}
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -506,6 +563,19 @@ export default function Admin() {
                       disabled={genBusy}
                     />
                   </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      {t.admin.genExpiry}
+                    </label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={genExpiryDays}
+                      onChange={(e) => setGenExpiryDays(e.target.value)}
+                      placeholder={t.admin.genExpiryPlaceholder}
+                      disabled={genBusy}
+                    />
+                  </div>
                   <div className="flex items-end">
                     <Button onClick={handleGenerate} disabled={genBusy} className="w-full sm:w-auto">
                       {genBusy ? (
@@ -591,19 +661,33 @@ export default function Admin() {
                                     : ""
                                 }`
                               : t.admin.codeUnused}
+                            {" · "}
+                            {c.expiresAt
+                              ? `${t.admin.expiresLabel} ${new Date(
+                                  c.expiresAt,
+                                ).toLocaleDateString(lang === "ar" ? "ar" : "fr-FR")}`
+                              : t.admin.neverExpires}
                           </p>
                         </div>
                         <div className="flex items-center gap-3">
                           <Badge
                             variant={
-                              c.used ? "secondary" : c.active ? "default" : "outline"
+                              c.expired
+                                ? "destructive"
+                                : c.used
+                                  ? "secondary"
+                                  : c.active
+                                    ? "default"
+                                    : "outline"
                             }
                           >
-                            {c.used
-                              ? t.admin.badgeUsed
-                              : c.active
-                                ? t.admin.badgeActive
-                                : t.admin.badgeDisabled}
+                            {c.expired
+                              ? t.admin.badgeExpired
+                              : c.used
+                                ? t.admin.badgeUsed
+                                : c.active
+                                  ? t.admin.badgeActive
+                                  : t.admin.badgeDisabled}
                           </Badge>
                           {!c.used && (
                             <Switch
@@ -620,6 +704,105 @@ export default function Admin() {
                             aria-label={t.admin.deleteCode}
                           >
                             <Trash2 className="size-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ============================ USERS ============================ */}
+          <TabsContent value="users" className="mt-0 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">{t.admin.usersTitle}</CardTitle>
+                <CardDescription>{t.admin.usersDesc}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {usersResult === undefined && (
+                  <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                    <Loader2 className="me-2 size-4 animate-spin" />
+                    {t.admin.loading}
+                  </div>
+                )}
+                {usersResult?.ok && usersResult.users.length === 0 && (
+                  <p className="py-6 text-center text-sm text-muted-foreground">
+                    {t.admin.listEmptyUsers}
+                  </p>
+                )}
+                {usersError && (
+                  <p className="mb-2 text-sm text-red-500">{usersError}</p>
+                )}
+                {usersResult?.ok && usersResult.users.length > 0 && (
+                  <div className="divide-y">
+                    {usersResult.users.map((u) => (
+                      <div
+                        key={u._id}
+                        className="flex flex-wrap items-center justify-between gap-3 py-3"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold">
+                            {u.name ? `${u.name} · ` : ""}
+                            {u.email}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {u.accessExpiresAt
+                              ? `${t.admin.expiresLabel} ${new Date(
+                                  u.accessExpiresAt,
+                                ).toLocaleDateString(lang === "ar" ? "ar" : "fr-FR")}`
+                              : u.accessSource
+                                ? t.admin.neverExpires
+                                : "—"}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge
+                            variant={
+                              u.expired
+                                ? "destructive"
+                                : u.hasAccess
+                                  ? "default"
+                                  : "outline"
+                            }
+                          >
+                            {u.expired
+                              ? t.admin.userExpired
+                              : u.hasAccess
+                                ? t.admin.userHasAccess
+                                : t.admin.userNoAccess}
+                          </Badge>
+                          <Input
+                            type="number"
+                            min={1}
+                            value={grantDays[u._id] ?? ""}
+                            onChange={(e) =>
+                              setGrantDays((prev) => ({
+                                ...prev,
+                                [u._id]: e.target.value,
+                              }))
+                            }
+                            placeholder={t.admin.userGrantDays}
+                            className="w-28"
+                            disabled={genBusy}
+                          />
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => grantUser(u)}
+                          >
+                            <Plus className="me-1.5 size-4" />
+                            {t.admin.userGrant}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => revokeUser(u)}
+                          >
+                            {t.admin.userRevoke}
                           </Button>
                         </div>
                       </div>

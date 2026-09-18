@@ -10,7 +10,9 @@ import {
   Circle,
   FlaskConical,
   GraduationCap,
+  KeyRound,
   Lightbulb,
+  Lock,
   LogOut,
   Scale,
   Search,
@@ -112,6 +114,7 @@ export default function Dashboard() {
 
   const progress = useQuery(api.courses.listProgress, {}) ?? {};
   const setProgress = useMutation(api.courses.setProgress);
+  const access = useQuery(api.accessCodes.myAccess, {});
 
   const doneCount = useMemo(
     () => COURSES.filter((c) => progress[c.slug]?.completed).length,
@@ -203,6 +206,37 @@ export default function Dashboard() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-8">
+        {/* ===== ACCESS EXPIRED ===== */}
+        {access?.hasAccess === false && (
+          <motion.section
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-3xl border border-destructive/40 bg-destructive/5 p-8 text-center"
+          >
+            <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-destructive/10">
+              <Lock className="size-7 text-destructive" />
+            </div>
+            <h2 className="mt-4 font-display text-2xl font-bold">
+              {t.dash.expiredTitle}
+            </h2>
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+              {t.dash.expiredDesc}
+            </p>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+              <Button className="gap-2" onClick={() => navigate("/auth")}>
+                <KeyRound className="size-4" />
+                {t.dash.expiredGoAuth}
+              </Button>
+              <Button variant="outline" onClick={handleSignOut}>
+                <LogOut className="size-4" />
+                {t.cta.signOut}
+              </Button>
+            </div>
+          </motion.section>
+        )}
+
+        {(access === undefined || access.hasAccess) && (
+        <>
         {selected ? (
           <CourseDetail
             course={selected}
@@ -241,6 +275,22 @@ export default function Dashboard() {
                   <p className="mt-1.5 text-sm text-muted-foreground">
                     {isGuest ? t.dash.guestHint : t.dash.subtitle}
                   </p>
+                  {access?.expiresAt != null && (
+                    <p
+                      className={`mt-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        access.expiresAt - Date.now() < 7 * 86_400_000
+                          ? "bg-destructive/10 text-destructive"
+                          : "bg-primary/10 text-primary"
+                      }`}
+                    >
+                      {t.dash.accessUntil}{" "}
+                      {new Date(access.expiresAt).toLocaleDateString(
+                        lang === "ar" ? "ar" : "fr-FR",
+                      )}
+                      {access.expiresAt - Date.now() < 7 * 86_400_000 &&
+                        ` · ${t.dash.expiresSoon}`}
+                    </p>
+                  )}
                   <div className="mt-5 flex items-center gap-3">
                     <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
                       <motion.div
@@ -410,6 +460,8 @@ export default function Dashboard() {
               })
             )}
           </>
+        )}
+        </>
         )}
       </div>
     </main>

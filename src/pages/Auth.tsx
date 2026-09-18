@@ -9,7 +9,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import logo from "@/assets/logo.svg";
-import { KeyRound, Loader2, UserX } from "lucide-react";
+import {
+  KeyRound,
+  Loader2,
+  Mail,
+  UserX,
+  ShieldCheck,
+} from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { useMutation } from "convex/react";
@@ -30,6 +36,8 @@ function resolveRedirectAfterAuth(
   return fallback;
 }
 
+type Mode = "code" | "email";
+
 function Auth({ redirectAfterAuth }: AuthProps = {}) {
   const { isLoading: authLoading, isAuthenticated, signIn } = useAuth();
   const navigate = useNavigate();
@@ -39,13 +47,27 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     searchParams.get("returnTo"),
     redirectAfterAuth,
   );
-  const [isLoading, setIsLoading] = useState(false);
+
+  const [mode, setMode] = useState<Mode>("code");
   const [error, setError] = useState<string | null>(null);
 
+  // --- code login ---
   const [code, setCode] = useState("");
   const [codeBusy, setCodeBusy] = useState(false);
   const redeemCode = useMutation(api.accessCodes.redeemCode);
   const claimCode = useMutation(api.accessCodes.claimCode);
+
+  // --- email login ---
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
+  const [emailMode, setEmailMode] = useState<"signUp" | "signIn">("signUp");
+  const [emailBusy, setEmailBusy] = useState(false);
+  const grantEmailAccess = useMutation(api.accessCodes.grantEmailAccess);
+
+  // --- guest ---
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
@@ -77,6 +99,8 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       case "inactive":
       case "already_used":
         return t.auth.errCodeUsed;
+      case "expired":
+        return t.auth.errCodeExpired;
       case "user_already_used":
         return t.auth.errCodeUserAlready;
       default:
@@ -121,6 +145,57 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           : t.auth.errGuest,
       );
       setCodeBusy(false);
+    }
+  };
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmedEmail = email.trim().toLowerCase();
+    setError(null);
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setError(t.auth.errEmailInvalid);
+      return;
+    }
+    if (password.length < 8) {
+      setError(t.auth.errPasswordShort);
+      return;
+    }
+
+    setEmailBusy(true);
+    try {
+      await signIn("password", {
+        email: trimmedEmail,
+        password,
+        ...(name.trim() ? { name: name.trim() } : {}),
+        flow: emailMode === "signUp" ? "signUp" : "signIn",
+      });
+
+      // After a fresh sign-up, grant access (invite code or 7-day trial).
+      if (emailMode === "signUp") {
+        const grant = await grantEmailAccess({
+          inviteCode: inviteCode.trim().toUpperCase() || undefined,
+        });
+        if (!grant.ok) {
+          // Account created but invite invalid: sign out and explain.
+          setError(t.auth.errInviteCode);
+          setEmailBusy(false);
+          return;
+        }
+      }
+
+      navigate(redirect);
+    } catch (err) {
+      console.error("Email auth error:", err);
+      const msg = err instanceof Error ? err.message : "";
+      setError(
+        msg.toLowerCase().includes("already") || msg.toLowerCase().includes("unique")
+          ? t.auth.errEmailInUse
+          : emailMode === "signIn"
+            ? t.auth.errEmailPassword
+            : t.auth.errEmailInUse,
+      );
+      setEmailBusy(false);
     }
   };
 
@@ -169,43 +244,184 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
             <CardDescription>{t.auth.signInDesc}</CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Mode tabs */}
+            <div className="mb-4 flex overflow-hidden rounded-lg border border-border p-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("code");
+                  setError(null);
+                }}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  mode === "code"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <KeyRound className="size-4" />
+                {t.auth.tabCode}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("email");
+                  setError(null);
+                }}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  mode === "email"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Mail className="size-4" />
+                {t.auth.tabEmail}
+              </button>
+            </div>
+
             {/* Access code login */}
-            <form onSubmit={handleCodeLogin} className="space-y-3">
-              <div className="relative">
-                <KeyRound className="absolute start-3 top-3 size-4 text-muted-foreground" />
+            {mode === "code" && (
+              <form onSubmit={handleCodeLogin} className="space-y-3">
+                <div className="relative">
+                  <KeyRound className="absolute start-3 top-3 size-4 text-muted-foreground" />
+                  <Input
+                    value={code}
+                    onChange={(e) =>
+                      setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))
+                    }
+                    placeholder="AB12CD34"
+                    maxLength={8}
+                    inputMode="text"
+                    autoCapitalize="characters"
+                    autoComplete="off"
+                    spellCheck={false}
+                    className="ps-9 text-center font-mono text-lg font-bold tracking-widest"
+                    disabled={codeBusy}
+                    required
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={codeBusy || code.trim().length !== 8}
+                >
+                  {codeBusy ? (
+                    <>
+                      <Loader2 className="me-2 size-4 animate-spin" />
+                      {t.auth.codeChecking}
+                    </>
+                  ) : (
+                    <>
+                      <KeyRound className="me-2 size-4" />
+                      {t.auth.codeLogin}
+                    </>
+                  )}
+                </Button>
+              </form>
+            )}
+
+            {/* Email login */}
+            {mode === "email" && (
+              <form onSubmit={handleEmailAuth} className="space-y-3">
+                {emailMode === "signUp" && (
+                  <Input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder={t.auth.namePlaceholder}
+                    autoComplete="name"
+                    disabled={emailBusy}
+                  />
+                )}
                 <Input
-                  value={code}
-                  onChange={(e) =>
-                    setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))
-                  }
-                  placeholder="AB12CD34"
-                  maxLength={8}
-                  inputMode="text"
-                  autoCapitalize="characters"
-                  autoComplete="off"
-                  spellCheck={false}
-                  className="ps-9 text-center font-mono text-lg font-bold tracking-widest"
-                  disabled={codeBusy}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t.auth.emailPlaceholder}
+                  autoComplete="email"
+                  disabled={emailBusy}
                   required
                 />
-              </div>
-              <Button type="submit" className="w-full" disabled={codeBusy || code.trim().length !== 8}>
-                {codeBusy ? (
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={t.auth.passwordPlaceholder}
+                  autoComplete={
+                    emailMode === "signUp" ? "new-password" : "current-password"
+                  }
+                  disabled={emailBusy}
+                  required
+                />
+                {emailMode === "signUp" && (
                   <>
-                    <Loader2 className="me-2 size-4 animate-spin" />
-                    {t.auth.codeChecking}
-                  </>
-                ) : (
-                  <>
-                    <KeyRound className="me-2 size-4" />
-                    {t.auth.codeLogin}
+                    <Input
+                      value={inviteCode}
+                      onChange={(e) =>
+                        setInviteCode(
+                          e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""),
+                        )
+                      }
+                      placeholder={t.auth.inviteCodePlaceholder}
+                      maxLength={8}
+                      className="text-center font-mono font-bold tracking-widest"
+                      autoComplete="off"
+                      spellCheck={false}
+                      disabled={emailBusy}
+                    />
+                    <p className="text-center text-xs text-muted-foreground">
+                      <ShieldCheck className="me-1 inline size-3.5" />
+                      {t.auth.trialNote}
+                    </p>
                   </>
                 )}
-              </Button>
-            </form>
+                <Button type="submit" className="w-full" disabled={emailBusy}>
+                  {emailBusy ? (
+                    <>
+                      <Loader2 className="me-2 size-4 animate-spin" />
+                      {t.auth.emailChecking}
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="me-2 size-4" />
+                      {emailMode === "signUp" ? t.auth.emailSignUp : t.auth.emailSignIn}
+                    </>
+                  )}
+                </Button>
+                <p className="text-center text-sm text-muted-foreground">
+                  {emailMode === "signUp" ? (
+                    <>
+                      {t.auth.haveAccount}{" "}
+                      <button
+                        type="button"
+                        className="font-semibold text-primary hover:underline"
+                        onClick={() => {
+                          setEmailMode("signIn");
+                          setError(null);
+                        }}
+                      >
+                        {t.auth.signInLink}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {t.auth.needAccount}{" "}
+                      <button
+                        type="button"
+                        className="font-semibold text-primary hover:underline"
+                        onClick={() => {
+                          setEmailMode("signUp");
+                          setError(null);
+                        }}
+                      >
+                        {t.auth.signUpLink}
+                      </button>
+                    </>
+                  )}
+                </p>
+              </form>
+            )}
 
             {error && (
-              <p className="mt-2 text-center text-sm text-red-500">{error}</p>
+              <p className="mt-3 text-center text-sm text-red-500">{error}</p>
             )}
 
             <div className="mt-4">
