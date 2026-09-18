@@ -41,6 +41,18 @@ const schema = defineSchema(
     })
       .index("by_user", ["userId"])
       .index("by_user_course", ["userId", "courseSlug"]),
+
+    // access codes generated in the admin dashboard; redeemed by users at /auth
+    accessCodes: defineTable({
+      code: v.string(), // 8-char uppercase code, e.g. "AB12CD34"
+      label: v.optional(v.string()), // optional note, e.g. student/group name
+      active: v.boolean(),
+      usedBy: v.optional(v.id("users")), // user who redeemed the code
+      usedAt: v.optional(v.number()),
+      createdAt: v.number(),
+    })
+      .index("by_code", ["code"])
+      .index("by_created", ["createdAt"]),
   },
   {
     schemaValidation: false,

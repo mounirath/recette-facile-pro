@@ -1,16 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
   BarChart3,
   CheckCircle2,
+  Copy,
   Eye,
   EyeOff,
   KeyRound,
   Loader2,
   Lock,
+  Plus,
+  Ticket,
+  Trash2,
   TrendingUp,
   UserX,
   Users,
@@ -24,7 +28,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { useLang } from "@/i18n";
 import logo from "@/assets/logo.svg";
 
@@ -37,6 +46,16 @@ type AdminStats = {
   completionsLast7: number;
   completionsLast30: number;
   weeks: { label: string; count: number }[];
+};
+
+type AccessCode = {
+  _id: Id<"accessCodes">;
+  code: string;
+  label: string | null;
+  active: boolean;
+  used: boolean;
+  usedAt: number | null;
+  createdAt: number;
 };
 
 const SESSION_KEY = "admin_pw_session";
@@ -113,6 +132,70 @@ export default function Admin() {
 
   const stats = result?.ok ? result.stats : undefined;
   const notConfigured = result?.ok === false && result.reason === "not_configured";
+
+  // ------------------------- Access codes (admin) -------------------------
+  const codesResult = useQuery(
+    api.accessCodes.listCodes,
+    sessionPw ? { password: sessionPw } : "skip",
+  );
+  const generateCodes = useMutation(api.accessCodes.generateCodes);
+  const setCodeActive = useMutation(api.accessCodes.setCodeActive);
+  const deleteCode = useMutation(api.accessCodes.deleteCode);
+
+  const [genCount, setGenCount] = useState(1);
+  const [genLabel, setGenLabel] = useState("");
+  const [genBusy, setGenBusy] = useState(false);
+  const [lastGenerated, setLastGenerated] = useState<string[]>([]);
+  const [copiedAll, setCopiedAll] = useState(false);
+  const [codesError, setCodesError] = useState<string | null>(null);
+
+  const handleGenerate = async () => {
+    if (!sessionPw) return;
+    setGenBusy(true);
+    setCodesError(null);
+    try {
+      const created = await generateCodes({
+        password: sessionPw,
+        count: genCount,
+        label: genLabel.trim() || undefined,
+      });
+      setLastGenerated(created);
+      setGenLabel("");
+    } catch (e) {
+      setCodesError(e instanceof Error ? e.message : t.admin.errPassword);
+    } finally {
+      setGenBusy(false);
+    }
+  };
+
+  const copyAll = async () => {
+    if (lastGenerated.length === 0) return;
+    try {
+      await navigator.clipboard.writeText(lastGenerated.join("\n"));
+      setCopiedAll(true);
+      setTimeout(() => setCopiedAll(false), 2000);
+    } catch {
+      /* clipboard unavailable */
+    }
+  };
+
+  const toggleCode = async (c: AccessCode) => {
+    if (!sessionPw) return;
+    try {
+      await setCodeActive({ password: sessionPw, codeId: c._id, active: !c.active });
+    } catch (e) {
+      setCodesError(e instanceof Error ? e.message : t.admin.errPassword);
+    }
+  };
+
+  const removeCode = async (c: AccessCode) => {
+    if (!sessionPw) return;
+    try {
+      await deleteCode({ password: sessionPw, codeId: c._id });
+    } catch (e) {
+      setCodesError(e instanceof Error ? e.message : t.admin.errPassword);
+    }
+  };
 
   const maxWeek = useMemo(
     () => Math.max(1, ...(stats?.weeks.map((w) => w.count) ?? [1])),
@@ -260,10 +343,23 @@ export default function Admin() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <div className="mb-6 flex items-center gap-2">
-          <BarChart3 className="size-5 text-primary" />
-          <h1 className="font-display text-2xl font-bold">{t.admin.overview}</h1>
-        </div>
+        <Tabs defaultValue="stats">
+          <div className="mb-6 flex items-center justify-between gap-3">
+            <h1 className="font-display text-2xl font-bold">{t.admin.overview}</h1>
+            <TabsList>
+              <TabsTrigger value="stats">
+                <BarChart3 className="me-2 size-4" />
+                {t.admin.tabStats}
+              </TabsTrigger>
+              <TabsTrigger value="codes">
+                <Ticket className="me-2 size-4" />
+                {t.admin.tabCodes}
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          {/* ============================ STATS ============================ */}
+          <TabsContent value="stats" className="mt-0 space-y-6">
 
         {/* KPI cards */}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -339,7 +435,7 @@ export default function Admin() {
         </div>
 
         {/* Weekly registrations trend */}
-        <Card className="mt-6">
+        <Card>
           <CardHeader>
             <CardTitle className="text-base">{t.admin.weeklyTitle}</CardTitle>
             <CardDescription>{t.admin.weeklyDesc}</CardDescription>
@@ -371,6 +467,169 @@ export default function Admin() {
             </div>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          {/* ============================ CODES ============================ */}
+          <TabsContent value="codes" className="mt-0 space-y-6">
+            {/* Generator */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">{t.admin.genTitle}</CardTitle>
+                <CardDescription>{t.admin.genDesc}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-3 sm:grid-cols-[130px_1fr_auto]">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      {t.admin.genCount}
+                    </label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={50}
+                      value={genCount}
+                      onChange={(e) => {
+                        const v = parseInt(e.target.value, 10);
+                        setGenCount(Number.isNaN(v) ? 1 : Math.min(50, Math.max(1, v)));
+                      }}
+                      disabled={genBusy}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      {t.admin.genLabel}
+                    </label>
+                    <Input
+                      value={genLabel}
+                      onChange={(e) => setGenLabel(e.target.value)}
+                      placeholder={t.admin.genLabelPlaceholder}
+                      disabled={genBusy}
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <Button onClick={handleGenerate} disabled={genBusy} className="w-full sm:w-auto">
+                      {genBusy ? (
+                        <Loader2 className="me-2 size-4 animate-spin" />
+                      ) : (
+                        <Plus className="me-2 size-4" />
+                      )}
+                      {t.admin.genButton}
+                    </Button>
+                  </div>
+                </div>
+
+                {codesError && (
+                  <p className="text-sm text-red-500">{codesError}</p>
+                )}
+
+                {lastGenerated.length > 0 && (
+                  <div className="rounded-lg border bg-muted/40 p-4">
+                    <div className="mb-2 flex items-center justify-between">
+                      <p className="text-xs font-semibold text-muted-foreground">
+                        {t.admin.genCreated.replace("{n}", String(lastGenerated.length))}
+                      </p>
+                      <Button variant="ghost" size="sm" onClick={copyAll}>
+                        <Copy className="me-2 size-4" />
+                        {copiedAll ? t.admin.copied : t.admin.copyAll}
+                      </Button>
+                    </div>
+                    <Textarea
+                      readOnly
+                      value={lastGenerated.join("\n")}
+                      rows={Math.min(6, lastGenerated.length)}
+                      className="font-mono text-sm"
+                      onFocus={(e) => e.currentTarget.select()}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Codes list */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">{t.admin.listTitle}</CardTitle>
+                <CardDescription>
+                  {codesResult?.ok
+                    ? t.admin.listCount.replace("{n}", String(codesResult.codes.length))
+                    : ""}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {codesResult === undefined && (
+                  <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                    <Loader2 className="me-2 size-4 animate-spin" />
+                    {t.admin.loading}
+                  </div>
+                )}
+                {codesResult?.ok && codesResult.codes.length === 0 && (
+                  <p className="py-6 text-center text-sm text-muted-foreground">
+                    {t.admin.listEmpty}
+                  </p>
+                )}
+                {codesResult?.ok && codesResult.codes.length > 0 && (
+                  <div className="divide-y">
+                    {codesResult.codes.map((c) => (
+                      <div
+                        key={c._id}
+                        className="flex flex-wrap items-center justify-between gap-3 py-3"
+                      >
+                        <div className="min-w-0">
+                          <p className="font-mono text-base font-bold tracking-widest">
+                            {c.code}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {c.label
+                              ? `${c.label} · `
+                              : ""}
+                            {c.used
+                              ? `${t.admin.codeUsed} ${
+                                  c.usedAt
+                                    ? new Date(c.usedAt).toLocaleDateString(
+                                        lang === "ar" ? "ar" : "fr-FR",
+                                      )
+                                    : ""
+                                }`
+                              : t.admin.codeUnused}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Badge
+                            variant={
+                              c.used ? "secondary" : c.active ? "default" : "outline"
+                            }
+                          >
+                            {c.used
+                              ? t.admin.badgeUsed
+                              : c.active
+                                ? t.admin.badgeActive
+                                : t.admin.badgeDisabled}
+                          </Badge>
+                          {!c.used && (
+                            <Switch
+                              checked={c.active}
+                              onCheckedChange={() => toggleCode(c)}
+                              aria-label={t.admin.badgeActive}
+                            />
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeCode(c)}
+                            className="text-destructive hover:text-destructive"
+                            aria-label={t.admin.deleteCode}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </main>
   );
