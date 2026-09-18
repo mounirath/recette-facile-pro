@@ -29,6 +29,12 @@ export interface Course {
     | "wax"
     | "interior"
     | "wheel"
+    | "engine"
+    | "foam"
+    | "coolant"
+    | "fog"
+    | "freshener"
+    | "washer"
     | "chart"
     | "safety"
     | "label";
@@ -736,160 +742,382 @@ export const COURSES: Course[] = [
     slug: "auto-shampoing",
     section: "auto",
     icon: "car",
-    title: { fr: "Shampoing auto concentré", ar: "شامبو السيارة المركّز" },
+    title: { fr: "Shampoing voiture", ar: "شامبو السيارات" },
     tagline: {
-      fr: "Mousse abondante qui décolle la saleté sans ternir la peinture.",
-      ar: "رغوة وفيرة تزيل الأوساخ دون أن تُضعف لمعان الطلاء.",
+      fr: "Mousse équilibrée qui décolle la saleté sans ternir la peinture.",
+      ar: "رغوة متوازنة تزيل الأوساخ دون أن تُضعف لمعان الطلاء.",
     },
     difficulty: 0,
     warnings: [
       {
-        fr: "Laver à l'ombre, carrosserie froide : un séchage au soleil laisse des traces.",
+        fr: "Laver à l'ombre, carrosserie froide : le séchage au soleil laisse des traces.",
         ar: "اغسل في الظل وهيكل بارد: التجفيف تحت الشمس يترك آثاراً.",
       },
     ],
     tips: [
       {
-        fr: "Utilisez deux seaux (savon / rinçage) pour ne pas replonger la saleté sur le chiffon.",
-        ar: "استعمل دلوين (صابون / شطف) كي لا تعيد الأوساخ إلى القماش.",
+        fr: "Méthode des deux seaux (savon / rinçage) pour ne pas replonger la saleté sur le gant.",
+        ar: "طريقة الدلوين (صابون / شطف) كي لا تعيد الأوساخ إلى القفاز.",
       },
     ],
     ingredients: [
-      { fr: "SLES / Texapon", ar: "SLES / تيكسابون", percent: 12 },
-      { fr: "Bétaïne (CAPB)", ar: "بيتائين (CAPB)", percent: 4 },
-      { fr: "Cocamide DEA", ar: "كواميد DEA", percent: 2 },
-      { fr: "Sel alimentaire (NaCl)", ar: "ملح الطعام (NaCl)", percent: 1 },
+      { fr: "Texapon N70", ar: "تيكسابون N70", percent: 8 },
+      { fr: "CDE (Cocamide DEA)", ar: "CDE (كواميد DEA)", percent: 2 },
+      { fr: "Propylene Glycol", ar: "بروبيلين غليكول", percent: 2 },
+      { fr: "Acide citrique", ar: "حمض الستريك", percent: 0.5 },
       { fr: "Formol", ar: "فورمول", percent: 0.2 },
-      { fr: "Parfum", ar: "عطر", percent: 0.3 },
+      { fr: "Parfum", ar: "عطر", percent: 0.5 },
       { fr: "Eau", ar: "ماء", percent: null },
     ],
     steps: [
-      { fr: "Verser l'eau dans le seau de préparation.", ar: "ضع الماء في دلو التحضير." },
-      { fr: "Ajouter le SLES/Texapon en remuant doucement (limiter la mousse).", ar: "أضف SLES أو تيكسابون مع التحريك بلطف (لتقليل الرغوة)." },
-      { fr: "Ajouter la Bétaïne puis le Cocamide DEA.", ar: "أضف البيتائين ثم الكواميد DEA." },
-      { fr: "Épaissir au sel jusqu'à la viscosité voulue.", ar: "زِد القوام بالملح حتى اللزوجة المطلوبة." },
-      { fr: "Ajouter le Formol puis le parfum.", ar: "أضف الفورمول ثم العطر." },
-      { fr: "Compléter avec de l'eau jusqu'à 100 % et mélanger doucement.", ar: "أكمل الماء إلى 100% واخلط بلطف." },
-      { fr: "Diluer 1 bouchon pour 5 L d'eau au lavage.", ar: "خفّف غطاء واحداً في 5 لتر ماء عند الغسل." },
+      { fr: "Dissoudre le Texapon N70 dans une partie de l'eau en remuant.", ar: "أذب تيكسابون N70 في جزء من الماء مع التحريك." },
+      { fr: "Ajouter le CDE.", ar: "أضف CDE." },
+      { fr: "Ajouter le Propylene Glycol.", ar: "أضف البروبيلين غليكول." },
+      { fr: "Dissoudre l'acide citrique dans un peu d'eau puis l'ajouter.", ar: "أذب حمض الستريك في كمية صغيرة من الماء وأضفه." },
+      { fr: "Ajouter le Formol et le parfum.", ar: "أضف الفورمول والعطر." },
+      { fr: "Compléter avec de l'eau jusqu'à 100 % et mélanger.", ar: "أكمل بالماء حتى 100%." },
     ],
   },
   {
-    slug: "auto-cire",
+    slug: "auto-glass",
     section: "auto",
-    icon: "wax",
-    title: { fr: "Cire brillance rapide (spray wax)", ar: "شمع السيارة السريع (بخاخ)" },
+    icon: "glass",
+    title: { fr: "Nettoyant vitres voiture", ar: "منظف زجاج السيارات" },
     tagline: {
-      fr: "Brillance miroir et glisse en 10 minutes, sans polissage.",
-      ar: "لمعان مرآوي وانزلاق في 10 دقائق، دون تلميع.",
-    },
-    difficulty: 1,
-    warnings: [
-      {
-        fr: "Ne jamais appliquer sur surfaces chaudes ou en plein soleil.",
-        ar: "لا تستعمله أبداً على أسطح ساخنة أو تحت الشمس المباشرة.",
-      },
-    ],
-    tips: [
-      {
-        fr: "Vaporiser sur une微 zone, essuyer immédiatement avec une microfibre propre.",
-        ar: "رشّ على منطقة صغيرة، وامسح فوراً بقطعة ميكروفايبر نظيفة.",
-      },
-    ],
-    ingredients: [
-      { fr: "Eau déminéralisée", ar: "ماء مقطر", percent: null },
-      { fr: "Émulsion de silicone (E2)", ar: "مستحلب سيليكون (E2)", percent: 8 },
-      { fr: "Cationic surfactant esterquat", ar: "منظف كاتيوني إستر كوات", percent: 3 },
-      { fr: "Alcool isopropylique (IPA)", ar: "كحول إيزوبروبيلي", percent: 5 },
-      { fr: "Parfum", ar: "عطر", percent: 0.2 },
-      { fr: "Conservateur", ar: "مادة حافظة", percent: 0.1 },
-    ],
-    steps: [
-      { fr: "Verser l'eau déminéralisée dans le récipient.", ar: "ضع الماء المقطر في الوعاء." },
-      { fr: "Ajouter l'esterquat et mélanger jusqu'à dissolution.", ar: "أضف الإستر كوات واخلط حتى الذوبان." },
-      { fr: "Incorporer doucement l'émulsion de silicone en remuant (pas de fouet vigoureux).", ar: "أضف مستحلب السيليكون ببطء مع التحريك (بدون خفق عنيف)." },
-      { fr: "Ajouter l'IPA, le parfum et le conservateur.", ar: "أضف الكحول الإيزوبروبيلي والعطر والمادة الحافظة." },
-      { fr: "Compléter avec l'eau jusqu'à 100 %, mélanger doucement.", ar: "أكمل الماء إلى 100% واخلط بلطف." },
-      { fr: "Conditionner en spray et agiter avant emploi (émulsion).", ar: "عبّئ في بخاخ ورجّه قبل الاستعمال (مستحلب)." },
-    ],
-  },
-  {
-    slug: "auto-interieur",
-    section: "auto",
-    icon: "interior",
-    title: { fr: "Nettoyant intérieur multi-surfaces", ar: "منظف المقصورة متعدد الأسطح" },
-    tagline: {
-      fr: "Tableau de bord, plastiques et simili : propre, satiné, sans gras.",
-      ar: "طبلون، بلاستيك وجلد صناعي: نظيف، ساتان وبدون دهنية.",
+      fr: "Zéro trace sur pare-brise et vitres, séchage rapide.",
+      ar: "بدون آثار على الزجاج الأمامي والنوافذ، تجفيف سريع.",
     },
     difficulty: 0,
     warnings: [
       {
-        fr: "Tester d'abord sur une zone cachée (cuir et écrans).",
-        ar: "جرّبه أولاً على منطقة خفية (الجلد والشاشات).",
+        fr: "Produit inflammable (isopropanol) : loin de toute flamme, pas de contact avec la peinture fraîche.",
+        ar: "منتج قابل للاشتعال (إيزوبروبانول): بعيداً عن اللهب، دون لمس الطلاء الجديد.",
       },
     ],
     tips: [
       {
-        fr: "Une dosette de silicone suffit : trop = surfaces glissantes et reflets gras.",
-        ar: "جرعة صغيرة من السيليكون تكفي: الزيادة = أسطح زلقة ولمعة دهنية.",
+        fr: "Essuyer en zigzag avec une microfibre sèche, vitre à l'ombre.",
+        ar: "امسح بحركات متعرجة بميكروفايبر جافة، والزجاج في الظل.",
       },
     ],
     ingredients: [
       { fr: "Eau", ar: "ماء", percent: null },
-      { fr: "SLES / Texapon", ar: "SLES / تيكسابون", percent: 3 },
-      { fr: "Bétaïne (CAPB)", ar: "بيتائين (CAPB)", percent: 1 },
-      { fr: "Butyl Glycol", ar: "بوتيل غليكول", percent: 2 },
-      { fr: "Émulsion de silicone (effet satiné)", ar: "مستحلب سيليكون (لمعة ساتان)", percent: 1 },
+      { fr: "Isopropanol (IPA)", ar: "إيزوبروبانول", percent: 10 },
+      { fr: "Propylene Glycol", ar: "بروبيلين غليكول", percent: 5 },
+      { fr: "Texapon N70", ar: "تيكسابون N70", percent: 2 },
+      { fr: "Acide citrique", ar: "حمض الستريك", percent: 0.3 },
       { fr: "Formol", ar: "فورمول", percent: 0.2 },
-      { fr: "Parfum", ar: "عطر", percent: 0.3 },
     ],
     steps: [
-      { fr: "Verser l'eau dans le récipient.", ar: "ضع الماء في الوعاء." },
-      { fr: "Dissoudre le SLES puis la Bétaïne en remuant doucement.", ar: "أذب SLES ثم البيتائين مع التحريك بلطف." },
-      { fr: "Ajouter le Butyl Glycol.", ar: "أضف البوتيل غليكول." },
-      { fr: "Incorporer l'émulsion de silicone et bien homogénéiser.", ar: "أضف مستحلب السيليكون واخلط جيداً حتى التجانس." },
-      { fr: "Ajouter le Formol puis le parfum.", ar: "أضف الفورمول ثم العطر." },
-      { fr: "Compléter avec de l'eau jusqu'à 100 %.", ar: "أكمل الماء إلى 100%." },
-      { fr: "Conditionner en spray ; secouer avant emploi.", ar: "عبّئ في بخاخ؛ رجّه قبل الاستعمال." },
+      { fr: "Mélanger l'eau avec l'isopropanol.", ar: "اخلط الماء مع الإيزوبروبانول." },
+      { fr: "Ajouter le Texapon N70.", ar: "أضف تيكسابون N70." },
+      { fr: "Ajouter le Propylene Glycol.", ar: "أضف البروبيلين غليكول." },
+      { fr: "Dissoudre l'acide citrique puis l'ajouter.", ar: "أذب حمض الستريك وأضفه." },
+      { fr: "Ajouter le Formol.", ar: "أضف الفورمول." },
+      { fr: "Compléter avec de l'eau jusqu'à 100 %, conditionner en spray.", ar: "أكمل بالماء حتى 100%، وعبّئ في بخاخ." },
     ],
   },
   {
-    slug: "auto-pneus",
+    slug: "auto-tableau",
     section: "auto",
-    icon: "wheel",
-    title: { fr: "Rénovateur pneus et plastiques noirs", ar: "مجدّد الإطارات والبلاستيك الأسود" },
+    icon: "interior",
+    title: { fr: "Rénovateur tableau de bord (tableau)", ar: "تلميع طبلون السيارة (تابلوه)" },
     tagline: {
-      fr: "Noir profond longue tenue, fini satiné non gras.",
-      ar: "أسود عميق يدوم طويلاً، بلمعة ساتان غير دهنية.",
+      fr: "Fini satiné non gras sur plastiques et vinyle du tableau de bord.",
+      ar: "لمعة ساتان غير دهنية على بلاستيك الطبلون والفينيل.",
+    },
+    difficulty: 0,
+    warnings: [
+      {
+        fr: "Ne jamais vaporiser vers les écrans ou commandes électriques : appliquer sur le chiffon.",
+        ar: "لا ترش نحو الشاشات أو الأزرار الكهربائية: ضع المنتج على القماش.",
+      },
+    ],
+    tips: [
+      {
+        fr: "Une couche fine suffit : trop de produit = surface collante qui retient la poussière.",
+        ar: "طبقة رقيقة تكفي: كثرة المنتج = سطح لزج يجمع الغبار.",
+      },
+    ],
+    ingredients: [
+      { fr: "Eau", ar: "ماء", percent: null },
+      { fr: "Propylene Glycol", ar: "بروبيلين غليكول", percent: 5 },
+      { fr: "Cétiol C5", ar: "سيتيول C5", percent: 10 },
+      { fr: "Isopropanol (IPA)", ar: "إيزوبروبانول", percent: 7 },
+      { fr: "Glycérine", ar: "جلسرين", percent: 3 },
+      { fr: "Formol", ar: "فورمول", percent: 0.5 },
+    ],
+    steps: [
+      { fr: "Mélanger le Propylene Glycol avec le Cétiol C5.", ar: "امزج البروبيلين غليكول مع سيتيول C5." },
+      { fr: "Ajouter l'isopropanol.", ar: "أضف الإيزوبروبانول." },
+      { fr: "Ajouter la glycérine.", ar: "أضف الجلسرين." },
+      { fr: "Ajouter le Formol.", ar: "أضف الفورمول." },
+      { fr: "Ajouter l'eau progressivement en remuant constamment.", ar: "أضف الماء تدريجياً مع التحريك المستمر." },
+      { fr: "Compléter jusqu'à 100 %, conditionner en spray.", ar: "أكمل حتى 100%، وعبّئ في بخاخ." },
+    ],
+  },
+  {
+    slug: "auto-moteur",
+    section: "auto",
+    icon: "engine",
+    title: { fr: "Dégraissant moteur", ar: "منظف المحرك من الزيوت والشحوم" },
+    tagline: {
+      fr: "Dissout huiles et graisses cuites du bloc moteur avant rinçage.",
+      ar: "يذيب الزيوت والشحوم المتراكمة في المحرك قبل الشطف.",
     },
     difficulty: 1,
     warnings: [
       {
-        fr: "Ne jamais appliquer sur la bande de roulement ni les pédales (glissance).",
-        ar: "لا تطبقه أبداً على منطقة التصاق الإطار أو الدواسات (انزلاق).",
+        fr: "Moteur froid uniquement ; protéger l'alternateur et l'électronique avec un film plastique.",
+        ar: "على محرك بارد فقط؛ احمِ الدينامو والإلكترونيات بغلاف بلاستيكي.",
       },
     ],
     tips: [
       {
-        fr: "Appliquer sur pneu propre et sec, laisser pénétrer 5 min puis essuyer l'excès.",
-        ar: "طبّقه على إطار نظيف وجاف، اتركه 5 دقائق ثم امسح الزائد.",
+        fr: "Pulvériser, laisser agir 5 min, brosser puis rincer à basse pression.",
+        ar: "رشّ، اتركه 5 دقائق، فرّش ثم اغطف بضغط منخفض.",
       },
     ],
     ingredients: [
       { fr: "Eau", ar: "ماء", percent: null },
-      { fr: "Émulsion de silicone haute viscosité", ar: "مستحلب سيليكون عالي اللزوجة", percent: 12 },
-      { fr: "Cationic surfactant esterquat", ar: "منظف كاتيوني إستر كوات", percent: 2 },
-      { fr: "Alcool isopropylique (IPA)", ar: "كحول إيزوبروبيلي", percent: 3 },
-      { fr: "Parfum", ar: "عطر", percent: 0.2 },
-      { fr: "Conservateur", ar: "مادة حافظة", percent: 0.1 },
+      { fr: "Butyl Glycol", ar: "بوتيل غليكول", percent: 10 },
+      { fr: "Texapon N70", ar: "تيكسابون N70", percent: 8 },
+      { fr: "Propylene Glycol", ar: "بروبيلين غليكول", percent: 5 },
+      { fr: "Cétiol C5", ar: "سيتيول C5", percent: 3 },
+      { fr: "Formol", ar: "فورمول", percent: 0.2 },
     ],
     steps: [
-      { fr: "Verser l'eau dans le récipient.", ar: "ضع الماء في الوعاء." },
-      { fr: "Ajouter l'esterquat et mélanger.", ar: "أضف الإستر كوات واخلط." },
-      { fr: "Incorporer lentement l'émulsion de silicone en remuant.", ar: "أضف مستحلب السيليكون ببطء مع التحريك." },
-      { fr: "Ajouter l'IPA, le parfum et le conservateur.", ar: "أضف الكحول والعطر والمادة الحافظة." },
-      { fr: "Compléter avec l'eau jusqu'à 100 %.", ar: "أكمل الماء إلى 100%." },
-      { fr: "Conditionner en spray épais ou flacon applicateur mousse.", ar: "عبّئ في بخاخ أو عبوة إسفنجية للتطبيق." },
+      { fr: "Dissoudre le Texapon N70 dans l'eau.", ar: "أذب تيكسابون N70 في الماء." },
+      { fr: "Ajouter le Butyl Glycol.", ar: "أضف البوتيل غليكول." },
+      { fr: "Ajouter le Propylene Glycol et le Cétiol C5.", ar: "أضف البروبيلين غليكول وسيتيول C5." },
+      { fr: "Ajouter le Formol.", ar: "أضف الفورمول." },
+      { fr: "Compléter avec de l'eau jusqu'à 100 %.", ar: "أكمل بالماء حتى 100%." },
+    ],
+  },
+  {
+    slug: "auto-mousse",
+    section: "auto",
+    icon: "foam",
+    title: { fr: "« La Mousse » nettoyant auto", ar: "«لا موس» لتنظيف السيارات" },
+    tagline: {
+      fr: "Mousse crémeuse qui adhère à la carrosserie : lavage sans frotter.",
+      ar: "رغوة كريمية تلتصق بالهيكل: غسل دون فرك.",
+    },
+    difficulty: 0,
+    warnings: [
+      {
+        fr: "Ne pas laisser sécher la mousse sur la carrosserie : rincer pendant qu'elle est humide.",
+        ar: "لا تترك الرغوة تجف على الهيكل: اغطف وهي رطبة.",
+      },
+    ],
+    tips: [
+      {
+        fr: "Utiliser avec un pistolet à mousse ou un pulvérisateur à pression, du bas vers le haut.",
+        ar: "استعمله مع مسدس رغوة أو رشاش ضغط، من الأسفل إلى الأعلى.",
+      },
+    ],
+    ingredients: [
+      { fr: "Eau", ar: "ماء", percent: null },
+      { fr: "Texapon N70", ar: "تيكسابون N70", percent: 10 },
+      { fr: "CDE (Cocamide DEA)", ar: "CDE (كواميد DEA)", percent: 3 },
+      { fr: "Propylene Glycol", ar: "بروبيلين غليكول", percent: 2 },
+      { fr: "Acide citrique", ar: "حمض الستريك", percent: 0.5 },
+      { fr: "Formol", ar: "فورمول", percent: 0.3 },
+      { fr: "Parfum", ar: "عطر", percent: 0.1 },
+    ],
+    steps: [
+      { fr: "Dissoudre le Texapon N70 dans l'eau.", ar: "أذب تيكسابون N70 في الماء." },
+      { fr: "Ajouter le CDE.", ar: "أضف CDE." },
+      { fr: "Ajouter le Propylene Glycol.", ar: "أضف البروبيلين غليكول." },
+      { fr: "Dissoudre l'acide citrique puis l'ajouter.", ar: "أذب حمض الستريك وأضفه." },
+      { fr: "Ajouter le Formol et le parfum.", ar: "أضف الفورمول والعطر." },
+      { fr: "Compléter avec de l'eau jusqu'à 100 %.", ar: "أكمل بالماء حتى 100%." },
+    ],
+  },
+  {
+    slug: "auto-liquide-refroidissement",
+    section: "auto",
+    icon: "coolant",
+    title: { fr: "Liquide de refroidissement moteur", ar: "مبرد محرك السيارة" },
+    tagline: {
+      fr: "Antigel / anticorrosion MEG prêt à l'emploi pour le circuit de refroidissement.",
+      ar: "مانع تجمد وتآكل من MEG جاهز للاستعمال في دائرة التبريد.",
+    },
+    difficulty: 1,
+    warnings: [
+      {
+        fr: "MEG toxique en cas d'ingestion : jamais dans une bouteille alimentaire, hors de portée des enfants et animaux.",
+        ar: "MEG سام عند البلع: أبداً في قارورة طعام، بعيداً عن الأطفال والحيوانات.",
+      },
+    ],
+    tips: [
+      {
+        fr: "Ne jamais ouvrir le bouchon du radiateur à chaud : brûlure de vapeur garantie.",
+        ar: "لا تفتح غطاء الراديوس ساخناً أبداً: حرق بالبخار مؤكد.",
+      },
+    ],
+    ingredients: [
+      { fr: "Mono Éthylène Glycol (MEG)", ar: "مونو إيثيلين غليكول (MEG)", percent: 50 },
+      { fr: "Eau distillée", ar: "ماء مقطر", percent: 48 },
+      { fr: "Inhibiteur de corrosion", ar: "مثبط التآكل", percent: 1.5 },
+      { fr: "Anti-moussant", ar: "مادة مانعة للرغوة", percent: 0.3 },
+      { fr: "Colorant", ar: "ملوّن", percent: 0.2 },
+    ],
+    steps: [
+      { fr: "Mélanger le MEG avec l'eau distillée.", ar: "اخلط MEG مع الماء المقطر." },
+      { fr: "Ajouter l'inhibiteur de corrosion.", ar: "أضف مثبط التآكل." },
+      { fr: "Ajouter l'anti-moussant.", ar: "أضف المادة المانعة للرغوة." },
+      { fr: "Ajouter le colorant.", ar: "أضف الملوّن." },
+      { fr: "Mélanger soigneusement jusqu'à homogénéité.", ar: "حرك جيداً حتى التجانس." },
+    ],
+  },
+  {
+    slug: "auto-antibuée",
+    section: "auto",
+    icon: "fog",
+    title: { fr: "Anti-buée pare-brise intérieur", ar: "مزيل الضباب من الزجاج الداخلي" },
+    tagline: {
+      fr: "Empêche la buée de se reformer sur la vitre intérieure du pare-brise.",
+      ar: "يمنع تكوّن الضباب على السطح الداخلي للزجاج الأمامي.",
+    },
+    difficulty: 0,
+    warnings: [
+      {
+        fr: "Inflammable : appliquer moteur arrêté, aérer l'habitacle après usage.",
+        ar: "قابل للاشتعال: استعمله والمحرك متوقف، وجدّد الهواء بعد الاستعمال.",
+      },
+    ],
+    tips: [
+      {
+        fr: "Brume légère sur la vitre propre, étaler puis essuyer au chiffon sec sans rincer.",
+        ar: "رشّة خفيفة على زجاج نظيف، وزّعه ثم امسح بقطعة جافة دون شطف.",
+      },
+    ],
+    ingredients: [
+      { fr: "Eau distillée", ar: "ماء مقطر", percent: null },
+      { fr: "Isopropanol (IPA)", ar: "إيزوبروبانول", percent: 20 },
+      { fr: "Propylene Glycol", ar: "بروبيلين غليكول", percent: 5 },
+      { fr: "Formol", ar: "فورمول", percent: 0.5 },
+      { fr: "Colorant", ar: "ملوّن", percent: 0.2 },
+    ],
+    steps: [
+      { fr: "Mélanger l'eau avec l'isopropanol.", ar: "اخلط الماء مع الإيزوبروبانول." },
+      { fr: "Ajouter le Propylene Glycol.", ar: "أضف البروبيلين غليكول." },
+      { fr: "Ajouter le Formol.", ar: "أضف الفورمول." },
+      { fr: "Ajouter le colorant.", ar: "أضف الملوّن." },
+      { fr: "Compléter avec de l'eau jusqu'à 100 %.", ar: "أكمل بالماء حتى 100%." },
+    ],
+  },
+  {
+    slug: "auto-parfum",
+    section: "auto",
+    icon: "freshener",
+    title: { fr: "Parfum de voiture", ar: "عطر السيارات" },
+    tagline: {
+      fr: "Diffuseur d'ambiance à base d'eau : senteur durable, sans alcool brûlant.",
+      ar: "معطر مقصورة بماء: رائحة تدوم، دون كحول حارق.",
+    },
+    difficulty: 0,
+    warnings: [
+      {
+        fr: "Ne pas vaporiser vers le visage ou les sièges en cuir brut : taches possibles.",
+        ar: "لا ترش نحو الوجه أو المقاعد الجلدية الخام: قد تسبب بقعاً.",
+      },
+    ],
+    tips: [
+      {
+        fr: "Le propylène glycol fixe le parfum : sans lui, l'odeur s'évapore en quelques heures.",
+        ar: "البروبيلين غليكول يثبّت العطر: بدونه تتبخر الرائحة في ساعات.",
+      },
+    ],
+    ingredients: [
+      { fr: "Eau distillée", ar: "ماء مقطر", percent: null },
+      { fr: "Propylene Glycol", ar: "بروبيلين غليكول", percent: 10 },
+      { fr: "Huile parfumée", ar: "زيت عطري", percent: 5 },
+      { fr: "Formol", ar: "فورمول", percent: 0.5 },
+    ],
+    steps: [
+      { fr: "Mélanger le Propylene Glycol avec l'huile parfumée.", ar: "اخلط البروبيلين غليكول مع الزيت العطري." },
+      { fr: "Ajouter l'eau distillée progressivement.", ar: "أضف الماء المقطر تدريجياً." },
+      { fr: "Ajouter le Formol.", ar: "أضف الفورمول." },
+      { fr: "Mélanger soigneusement jusqu'à homogénéité.", ar: "حرك جيداً حتى التجانس." },
+    ],
+  },
+  {
+    slug: "auto-jantes",
+    section: "auto",
+    icon: "wheel",
+    title: { fr: "Nettoyant et rénovateur de jantes", ar: "منظف ومجدّد عجلات السيارة" },
+    tagline: {
+      fr: "Décolle poussière de frein et saletés incrustées des jantes.",
+      ar: "يزيل غبار الفحمات والأوساخ المتراكمة من الجنوط.",
+    },
+    difficulty: 1,
+    warnings: [
+      {
+        fr: "Jantes froides uniquement ; ne pas laisser sécher sur jantes anodisées ou vernies neuves.",
+        ar: "على جوانط باردة فقط؛ لا تتركه يجف على الجوانط المؤكسدة أو المطليّة حديثاً.",
+      },
+    ],
+    tips: [
+      {
+        fr: "Brosser avec une brosse à jantes souple, rincer abondamment à l'eau claire.",
+        ar: "فرّش بفرشاة جوانط ناعمة، واغطف بغزارة بماء نظيف.",
+      },
+    ],
+    ingredients: [
+      { fr: "Eau", ar: "ماء", percent: null },
+      { fr: "Texapon N70", ar: "تيكسابون N70", percent: 7 },
+      { fr: "Propylene Glycol", ar: "بروبيلين غليكول", percent: 3 },
+      { fr: "C.O.D (caustique)", ar: "C.O.D (كاوستيك)", percent: 5 },
+      { fr: "Acide citrique", ar: "حمض الستريك", percent: 1 },
+      { fr: "Formol", ar: "فورمول", percent: 0.3 },
+    ],
+    steps: [
+      { fr: "Dissoudre le Texapon N70 dans l'eau.", ar: "أذب تيكسابون N70 في الماء." },
+      { fr: "Ajouter le C.O.D.", ar: "أضف C.O.D." },
+      { fr: "Ajouter le Propylene Glycol.", ar: "أضف البروبيلين غليكول." },
+      { fr: "Dissoudre l'acide citrique puis l'ajouter.", ar: "أذب حمض الستريك وأضفه." },
+      { fr: "Ajouter le Formol.", ar: "أضف الفورمول." },
+      { fr: "Compléter avec de l'eau jusqu'à 100 %.", ar: "أكمل بالماء حتى 100%." },
+    ],
+  },
+  {
+    slug: "auto-lave-glace",
+    section: "auto",
+    icon: "washer",
+    title: { fr: "Liquide lave-glace (lave-glace)", ar: "سائل مساحات الزجاج" },
+    tagline: {
+      fr: "Formulé pour le réservoir du lave-glace : nettoie et ne gèle pas en hiver.",
+      ar: "مخصّص لخزان المساحات: ينظف ولا يتجمد في الشتاء.",
+    },
+    difficulty: 0,
+    warnings: [
+      {
+        fr: "Inflammable (isopropanol) : stocker loin du moteur chaud et de toute flamme.",
+        ar: "قابل للاشتعال (إيزوبروبانول): خزّنه بعيداً عن المحرك الساخن واللهب.",
+      },
+    ],
+    tips: [
+      {
+        fr: "En été, diluer 1/2 avec de l'eau ; en hiver, utiliser pur pour la protection gel.",
+        ar: "في الصيف خفّفه بالنصف بماء؛ وفي الشتاء استعمله صافياً للحماية من التجمد.",
+      },
+    ],
+    ingredients: [
+      { fr: "Eau distillée", ar: "ماء مقطر", percent: null },
+      { fr: "Isopropanol (IPA)", ar: "إيزوبروبانول", percent: 20 },
+      { fr: "Tensioactif", ar: "مادة فعالة سطحياً", percent: 1 },
+      { fr: "Propylene Glycol", ar: "بروبيلين غليكول", percent: 5 },
+      { fr: "Formol", ar: "فورمول", percent: 0.2 },
+      { fr: "Parfum", ar: "عطر", percent: 0.2 },
+    ],
+    steps: [
+      { fr: "Mélanger l'eau avec l'isopropanol.", ar: "اخلط الماء مع الإيزوبروبانول." },
+      { fr: "Ajouter le tensioactif.", ar: "أضف المادة الفعالة سطحياً." },
+      { fr: "Ajouter le Propylene Glycol.", ar: "أضف البروبيلين غليكول." },
+      { fr: "Ajouter le Formol et le parfum.", ar: "أضف الفورمول والعطر." },
+      { fr: "Compléter avec de l'eau jusqu'à 100 %.", ar: "أكمل بالماء حتى 100%." },
     ],
   },
   {
@@ -971,8 +1199,20 @@ export const COURSES: Course[] = [
         fr: "Ne jamais mélanger javel et acide : vapeurs de chlore mortelles.",
         ar: "لا تخلط أبداً الجافيل مع الحمض: أبخرة الكلور قاتلة.",
       },
+      {
+        fr: "Le formol est toxique : manipulez-le dans un local bien ventilé.",
+        ar: "الفورمالين مادة سامة: استعمله في مكان جيد التهوية.",
+      },
     ],
     tips: [
+      {
+        fr: "Respectez l'ordre d'ajout : eau d'abord, tensioactifs ensuite, additifs en dernier.",
+        ar: "احترم ترتيب الإضافة: الماء أولاً، ثم المواد الفعالة، ثم الإضافات أخيراً.",
+      },
+      {
+        fr: "Ajoutez le sel goutte à goutte : un excès fait chuter la viscosité.",
+        ar: "أضف الملح تدريجياً (قطرات): الإفراط يقلل اللزوجة.",
+      },
       {
         fr: "Affichez la fiche de chaque matière (pH, dangers, premiers secours) près du plan de travail.",
         ar: "علّق بطاقة كل مادة (الحموضة، الأخطار، الإسعافات الأولية) بجانب مكان العمل.",

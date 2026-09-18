@@ -234,6 +234,82 @@ export function WheelIcon({ className }: IconProps) {
   );
 }
 
+export function EngineIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden>
+      <rect x="10" y="18" width="20" height="16" rx="3" className="fill-primary/25" />
+      <path d="M30 22h6v8h-6" className="fill-primary/35" />
+      <rect x="14" y="10" width="4" height="8" rx="1.5" className="fill-primary/45" />
+      <rect x="22" y="10" width="4" height="8" rx="1.5" className="fill-primary/45" />
+      <rect x="10" y="34" width="24" height="4" rx="2" className="fill-primary/45" />
+      <path d="M4 22h4v8H4" className="fill-primary/35" />
+      <path d="M36 12c4 2 6 5 6 9s-2 7-6 9" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-accent" />
+      <circle cx="36" cy="9" r="2" className="fill-accent" />
+    </svg>
+  );
+}
+
+export function FoamIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden>
+      <path d="M10 34c-2-4 0-8 4-9-1-4 2-7 6-7 1-3 4-5 7-4 3-2 8-1 9 3 4 0 7 3 6 7 3 1 5 5 3 9 0 2-2 4-4 4H14c-2 0-4-1-4-3Z" className="fill-primary/25" />
+      <circle cx="18" cy="26" r="2.5" className="fill-card/90" />
+      <circle cx="26" cy="22" r="2.5" className="fill-card/90" />
+      <circle cx="33" cy="27" r="2.5" className="fill-card/90" />
+      <path d="M14 40h22" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-primary/60" />
+      <circle cx="38" cy="11" r="2" className="fill-accent" />
+    </svg>
+  );
+}
+
+export function CoolantIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden>
+      <path d="M24 6c6 7 12 13 12 20a12 12 0 0 1-24 0c0-7 6-13 12-20Z" className="fill-primary/25" />
+      <path d="M18 28c0 3.5 2.5 6 6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-card/90" />
+      <path d="M24 2v3M14 5l1.5 2.5M34 5l-1.5 2.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-primary/55" />
+      <circle cx="40" cy="10" r="2" className="fill-accent" />
+    </svg>
+  );
+}
+
+export function FogIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden>
+      <rect x="6" y="12" width="36" height="18" rx="6" className="fill-primary/20" />
+      <path d="M10 20c3-3 7-4 11-3M20 24c4-4 9-5 14-3M26 18c3-2 7-2 10 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-card/85" />
+      <path d="M10 36h28M14 41h20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-primary/55" />
+      <circle cx="40" cy="9" r="2" className="fill-accent" />
+    </svg>
+  );
+}
+
+export function FreshenerIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden>
+      <path d="M14 18h20l-2 20a4 4 0 0 1-4 4h-8a4 4 0 0 1-4-4l-2-20Z" className="fill-primary/25" />
+      <rect x="19" y="8" width="10" height="7" rx="2" className="fill-primary/45" />
+      <path d="M20 26c2 2 6 2 8 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-card/85" />
+      <path d="M36 14c2-2 5-2 7 0M34 8c2-2 5-2 7 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-primary/50" />
+      <path d="M41 17c1.5 1.5 1.5 4 0 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-accent" />
+      <circle cx="12" cy="10" r="2" className="fill-accent" />
+    </svg>
+  );
+}
+
+export function WasherIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden>
+      <path d="M18 8h12l3 6H15l3-6Z" className="fill-primary/40" />
+      <path d="M14 14h20a4 4 0 0 1 4 4v16a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6V18a4 4 0 0 1 4-4Z" className="fill-primary/25" />
+      <path d="M15 30c3-3 6-3 9 0s6 3 9 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-card/90" />
+      <path d="M15 35c3-3 6-3 9 0s6 3 9 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-card/70" />
+      <path d="M34 6c2.5.8 4 2.5 4 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-accent" />
+      <circle cx="34" cy="4" r="2" className="fill-accent" />
+    </svg>
+  );
+}
+
 export function HeroBottles({ className }: IconProps) {
   return (
     <svg viewBox="0 0 220 160" fill="none" className={className} aria-hidden>

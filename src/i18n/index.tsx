@@ -36,7 +36,7 @@ const fr = {
     primaryCta: "Commencer la formation",
     secondaryCta: "Voir les recettes",
     stats: [
-      { value: "22+", label: "Recettes complètes" },
+      { value: "31+", label: "Recettes complètes" },
       { value: "3", label: "Modules de formation" },
       { value: "FR·AR", label: "Bilingue intégral" },
       { value: "100%", label: "Méthodes détaillées" },
@@ -66,7 +66,7 @@ const fr = {
   },
   sections: {
     kicker: "Le programme",
-    title: "Quatre modules, 22 recettes professionnelles",
+    title: "Quatre modules, 31 recettes professionnelles",
     subtitle:
       "Des détergents maison aux soins corporels : chaque module couvre les matières premières, la sécurité et le conditionnement.",
   },
@@ -103,7 +103,7 @@ const fr = {
         price: "19",
         desc: "Pour produire et vendre en toute confiance",
         features: [
-          "Les 22 recettes, tous modules",
+          "Les 31 recettes, tous modules",
           "Calculateur de lots illimité",
           "Contenu bilingue FR + AR",
           "Fiches techniques PDF complètes",
@@ -197,7 +197,7 @@ const fr = {
     levels: ["Facile", "Intermédiaire", "Avancé"],
     yieldLabel: "Rendement",
     certTitle: "Certificat de fin de formation",
-    certDesc: "Terminez les 22 recettes pour débloquer votre certificat.",
+    certDesc: "Terminez les 31 recettes pour débloquer votre certificat.",
     certUnlocked: "Félicitations ! Formation complétée.",
     noResults: "Aucune recette ne correspond à votre recherche.",
     percents: "Pourcentages",
@@ -282,7 +282,7 @@ const ar: typeof fr = {
     primaryCta: "ابدأ التكوين",
     secondaryCta: "شاهد الوصفات",
     stats: [
-      { value: "+22", label: "وصفة كاملة" },
+      { value: "+31", label: "وصفة كاملة" },
       { value: "3", label: "وحدات تكوين" },
       { value: "FR·AR", label: "ثنائي اللغة" },
       { value: "100%", label: "طرق مفصلة" },
@@ -312,7 +312,7 @@ const ar: typeof fr = {
   },
   sections: {
     kicker: "البرنامج",
-    title: "أربع وحدات، 22 وصفة احترافية",
+    title: "أربع وحدات، 31 وصفة احترافية",
     subtitle:
       "من المنظفات المنزلية إلى مستحضرات العناية الشخصية: كل وحدة تغطي المواد الأولية والسلامة والتعبئة.",
   },
@@ -348,7 +348,7 @@ const ar: typeof fr = {
         price: "19",
         desc: "للإنتاج والبيع بثقة",
         features: [
-          "22 وصفة في كل الوحدات",
+          "31 وصفة في كل الوحدات",
           "حاسبة كميات غير محدودة",
           "محتوى ثنائي اللغة فرنسي + عربي",
           "ملفات تقنية PDF كاملة",
@@ -442,7 +442,7 @@ const ar: typeof fr = {
     levels: ["سهل", "متوسط", "متقدم"],
     yieldLabel: "الناتج",
     certTitle: "شهادة إتمام التكوين",
-    certDesc: "أكمل الـ 22 وصفة لفتح شهادتك.",
+    certDesc: "أكمل الـ 31 وصفة لفتح شهادتك.",
     certUnlocked: "تهانينا! تم إكمال التكوين.",
     noResults: "لا توجد وصفة مطابقة لبحثك.",
     percents: "النسب المئوية",
