@@ -69,7 +69,19 @@ const schema = defineSchema(
     // Admin-managed recipes: custom recipes AND overrides of built-in courses
     // (same slug). Fields left empty on an override fall back to the static
     // base course in src/data/courses.ts.
-    recipes: defineTable({
+    posts: defineTable({
+    titleFr: v.string(),
+    titleAr: v.string(),
+    bodyFr: v.string(),
+    bodyAr: v.string(),
+    youtubeId: v.optional(v.string()),
+    published: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_created", ["createdAt"]),
+
+  recipes: defineTable({
       slug: v.string(),
       section: v.union(
         v.literal("menage"),

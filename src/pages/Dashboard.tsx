@@ -14,6 +14,7 @@ import {
   Lightbulb,
   Lock,
   LogOut,
+  Megaphone,
   Youtube as YoutubeIcon,
   Scale,
   Search,
@@ -118,6 +119,7 @@ export default function Dashboard() {
   const progress = useQuery(api.courses.listProgress, {}) ?? {};
   const setProgress = useMutation(api.courses.setProgress);
   const access = useQuery(api.accessCodes.myAccess, {});
+  const posts = useQuery(api.posts.listPublic, {});
 
   const doneCount = useMemo(
     () => COURSES.filter((c) => progress[c.slug]?.completed).length,
@@ -322,6 +324,57 @@ export default function Dashboard() {
                 </div>
               </div>
             </motion.section>
+
+            {/* ===== PUBLICATIONS (announcements) ===== */}
+            {posts && posts.length > 0 && (
+              <motion.section
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6"
+              >
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-accent/20 text-accent-foreground">
+                    <Megaphone className="size-4" />
+                  </div>
+                  <h2 className="font-display text-base font-bold">
+                    {t.dash.postsTitle}
+                  </h2>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {posts.map((p) => (
+                    <Card key={p._id} className="overflow-hidden">
+                      <CardContent className="p-0">
+                        {p.youtubeId && (
+                          <div className="aspect-video w-full bg-black">
+                            <iframe
+                              src={`https://www.youtube-nocookie.com/embed/${p.youtubeId}`}
+                              title={lang === "ar" ? p.titleAr : p.titleFr}
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                              className="size-full"
+                            />
+                          </div>
+                        )}
+                        <div className="p-5">
+                          <div className="flex items-center gap-2">
+                            <Megaphone className="size-4 shrink-0 text-primary" />
+                            <h3 className="font-display font-bold leading-snug">
+                              {lang === "ar" ? p.titleAr : p.titleFr}
+                            </h3>
+                          </div>
+                          <p
+                            className="mt-2 whitespace-pre-line text-sm text-muted-foreground"
+                            dir={lang === "ar" ? "rtl" : "ltr"}
+                          >
+                            {lang === "ar" ? p.bodyAr : p.bodyFr}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </motion.section>
+            )}
 
             {/* ===== CERTIFICATE ===== */}
             {allDone && (

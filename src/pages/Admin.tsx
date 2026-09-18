@@ -21,6 +21,7 @@ import {
   UserX,
   Users,
   Youtube,
+  Megaphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -510,6 +511,76 @@ export default function Admin() {
     }
   };
 
+  // ------------------------- Publications (admin) ------------------------
+  const postsAdmin = useQuery(
+    api.posts.listAdmin,
+    sessionPw ? { password: sessionPw } : "skip",
+  );
+  const upsertPost = useMutation(api.posts.upsertPost);
+  const setPostPublished = useMutation(api.posts.setPostPublished);
+  const deletePost = useMutation(api.posts.deletePost);
+
+  const [postForm, setPostForm] = useState<null | {
+    id: Id<"posts"> | null;
+    titleFr: string;
+    titleAr: string;
+    bodyFr: string;
+    bodyAr: string;
+    youtubeUrl: string;
+    published: boolean;
+  }>(null);
+  const [postBusy, setPostBusy] = useState(false);
+  const [postMsg, setPostMsg] = useState<string | null>(null);
+  const [postError, setPostError] = useState<string | null>(null);
+
+  const handleSavePost = async () => {
+    if (!sessionPw || !postForm) return;
+    setPostBusy(true);
+    setPostError(null);
+    try {
+      await upsertPost({
+        password: sessionPw,
+        id: postForm.id ?? undefined,
+        titleFr: postForm.titleFr,
+        titleAr: postForm.titleAr,
+        bodyFr: postForm.bodyFr,
+        bodyAr: postForm.bodyAr,
+        youtubeUrl: postForm.youtubeUrl.trim() || undefined,
+        published: postForm.published,
+      });
+      setPostMsg(t.admin.postSaved);
+      setPostForm(null);
+    } catch (e) {
+      setPostError(
+        e instanceof Error
+          ? e.message === "invalid_youtube_url"
+            ? t.admin.recipeBadVideo
+            : e.message
+          : t.admin.errPassword,
+      );
+    } finally {
+      setPostBusy(false);
+    }
+  };
+
+  const togglePostPublished = async (p: { _id: Id<"posts">; published: boolean }) => {
+    if (!sessionPw) return;
+    try {
+      await setPostPublished({ password: sessionPw, id: p._id, published: !p.published });
+    } catch (e) {
+      setPostError(e instanceof Error ? e.message : t.admin.errPassword);
+    }
+  };
+
+  const removePost = async (id: Id<"posts">) => {
+    if (!sessionPw) return;
+    try {
+      await deletePost({ password: sessionPw, id });
+    } catch (e) {
+      setPostError(e instanceof Error ? e.message : t.admin.errPassword);
+    }
+  };
+
   // ----------------------------- Login screen -----------------------------
   if (!sessionPw) {
     return (
@@ -670,6 +741,10 @@ export default function Admin() {
               <TabsTrigger value="recipes">
                 <BookOpen className="me-2 size-4" />
                 {t.admin.tabRecipes}
+              </TabsTrigger>
+              <TabsTrigger value="posts">
+                <Megaphone className="me-2 size-4" />
+                {t.admin.tabPosts}
               </TabsTrigger>
             </TabsList>
           </div>
@@ -1448,6 +1523,229 @@ export default function Admin() {
                     );
                   })}
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ========================== PUBLICATIONS ========================== */}
+          <TabsContent value="posts" className="mt-0 space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-display text-lg font-bold">{t.admin.postsTitle}</h2>
+                <p className="text-xs text-muted-foreground">{t.admin.postsDesc}</p>
+              </div>
+              <Button
+                onClick={() =>
+                  setPostForm({
+                    id: null,
+                    titleFr: "",
+                    titleAr: "",
+                    bodyFr: "",
+                    bodyAr: "",
+                    youtubeUrl: "",
+                    published: false,
+                  })
+                }
+                className="gap-2"
+              >
+                <Plus className="size-4" />
+                {t.admin.postNew}
+              </Button>
+            </div>
+
+            {postMsg && (
+              <p className="rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+                {postMsg}
+              </p>
+            )}
+            {postError && (
+              <p className="rounded-lg bg-destructive/10 px-4 py-2 text-sm text-destructive">
+                {postError}
+              </p>
+            )}
+
+            {/* Editor form */}
+            {postForm && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    {postForm.id ? t.admin.postEdit : t.admin.postNew}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.postTitleFr}
+                      </label>
+                      <Input
+                        value={postForm.titleFr}
+                        onChange={(e) => setPostForm({ ...postForm, titleFr: e.target.value })}
+                        disabled={postBusy}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.postTitleAr}
+                      </label>
+                      <Input
+                        dir="rtl"
+                        value={postForm.titleAr}
+                        onChange={(e) => setPostForm({ ...postForm, titleAr: e.target.value })}
+                        disabled={postBusy}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.postBodyFr}
+                      </label>
+                      <Textarea
+                        value={postForm.bodyFr}
+                        onChange={(e) => setPostForm({ ...postForm, bodyFr: e.target.value })}
+                        rows={5}
+                        disabled={postBusy}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.postBodyAr}
+                      </label>
+                      <Textarea
+                        dir="rtl"
+                        value={postForm.bodyAr}
+                        onChange={(e) => setPostForm({ ...postForm, bodyAr: e.target.value })}
+                        rows={5}
+                        disabled={postBusy}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto] sm:items-end">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.postVideo}
+                      </label>
+                      <Input
+                        value={postForm.youtubeUrl}
+                        onChange={(e) => setPostForm({ ...postForm, youtubeUrl: e.target.value })}
+                        placeholder="https://www.youtube.com/watch?v=…"
+                        disabled={postBusy}
+                      />
+                    </div>
+                    <label className="flex cursor-pointer items-center gap-2 pb-1 text-sm">
+                      <Switch
+                        checked={postForm.published}
+                        onCheckedChange={(v) => setPostForm({ ...postForm, published: v })}
+                        disabled={postBusy}
+                      />
+                      {postForm.published ? t.admin.postPublished : t.admin.postDraft}
+                    </label>
+                    <div className="flex gap-2 pb-0.5">
+                      <Button onClick={handleSavePost} disabled={postBusy} className="gap-2">
+                        {postBusy ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="size-4" />
+                        )}
+                        {t.admin.genButton}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setPostForm(null)}
+                        disabled={postBusy}
+                      >
+                        {t.auth.or === "ou" ? "Annuler" : "إلغاء"}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Posts list */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">{t.admin.postsTitle}</CardTitle>
+                <CardDescription>
+                  {postsAdmin
+                    ? t.admin.postsCount.replace("{n}", String(postsAdmin.length))
+                    : ""}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {postsAdmin === undefined && (
+                  <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                    <Loader2 className="me-2 size-4 animate-spin" />
+                    {t.admin.loading}
+                  </div>
+                )}
+                {postsAdmin && postsAdmin.length === 0 && (
+                  <p className="py-6 text-center text-sm text-muted-foreground">
+                    {t.admin.postsEmpty}
+                  </p>
+                )}
+                {postsAdmin && postsAdmin.length > 0 && (
+                  <div className="divide-y">
+                    {postsAdmin.map((p) => (
+                      <div
+                        key={p._id}
+                        className="flex flex-wrap items-center justify-between gap-3 py-3"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold">
+                            {lang === "ar" ? p.titleAr : p.titleFr}
+                            {p.youtubeId && (
+                              <Badge variant="secondary" className="ms-2 text-[10px]">
+                                <Youtube className="me-1 inline size-3" />
+                                {t.admin.recipeHasVideo}
+                              </Badge>
+                            )}
+                          </p>
+                          <p className="line-clamp-1 text-xs text-muted-foreground">
+                            {lang === "ar" ? p.bodyAr : p.bodyFr}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={p.published ? "default" : "outline"}>
+                            {p.published ? t.admin.postPublished : t.admin.postDraft}
+                          </Badge>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              setPostForm({
+                                id: p._id,
+                                titleFr: p.titleFr,
+                                titleAr: p.titleAr,
+                                bodyFr: p.bodyFr,
+                                bodyAr: p.bodyAr,
+                                youtubeUrl: p.youtubeId
+                                  ? `https://www.youtube.com/watch?v=${p.youtubeId}`
+                                  : "",
+                                published: p.published,
+                              })
+                            }
+                          >
+                            <Pencil className="me-1.5 size-3.5" />
+                            {t.admin.postEdit}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => removePost(p._id)}
+                            aria-label={t.admin.postDelete}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
