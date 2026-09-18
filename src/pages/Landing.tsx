@@ -493,6 +493,12 @@ export default function Landing() {
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} {t.brand}. {t.footer.rights}
           </p>
+          <button
+            onClick={() => navigate("/admin")}
+            className="text-[11px] text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+          >
+            Admin
+          </button>
         </div>
       </footer>
 
