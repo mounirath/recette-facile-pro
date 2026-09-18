@@ -65,6 +65,52 @@ const schema = defineSchema(
       expiresAt: v.optional(v.number()),
       grantedAt: v.number(),
     }).index("by_user", ["userId"]),
+
+    // Admin-managed recipes: custom recipes AND overrides of built-in courses
+    // (same slug). Fields left empty on an override fall back to the static
+    // base course in src/data/courses.ts.
+    recipes: defineTable({
+      slug: v.string(),
+      section: v.union(
+        v.literal("menage"),
+        v.literal("soin"),
+        v.literal("auto"),
+        v.literal("business"),
+      ),
+      titleFr: v.string(),
+      titleAr: v.string(),
+      taglineFr: v.string(),
+      taglineAr: v.string(),
+      difficulty: v.number(),
+      warningsFr: v.array(v.string()),
+      warningsAr: v.array(v.string()),
+      tipsFr: v.array(v.string()),
+      tipsAr: v.array(v.string()),
+      ingredients: v.array(
+        v.object({
+          fr: v.string(),
+          ar: v.string(),
+          percent: v.union(v.number(), v.null()),
+        }),
+      ),
+      stepsFr: v.array(v.string()),
+      stepsAr: v.array(v.string()),
+      photoUrl: v.optional(v.string()),
+      youtubeId: v.optional(v.string()),
+      youtubeTitle: v.optional(v.string()),
+      icon: v.optional(v.string()),
+      hidden: v.optional(v.boolean()),
+      updatedAt: v.number(),
+    })
+      .index("by_slug", ["slug"])
+      .index("by_section", ["section"]),
+
+    // Cache of YouTube oEmbed titles (12h TTL) to avoid repeated fetches.
+    youtubeCache: defineTable({
+      videoId: v.string(),
+      title: v.optional(v.string()),
+      fetchedAt: v.number(),
+    }).index("by_video_id", ["videoId"]),
   },
   {
     schemaValidation: false,

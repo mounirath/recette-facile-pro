@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
   BarChart3,
+  BookOpen,
   CheckCircle2,
   Copy,
   Eye,
@@ -12,12 +13,14 @@ import {
   KeyRound,
   Loader2,
   Lock,
+  Pencil,
   Plus,
   Ticket,
   Trash2,
   TrendingUp,
   UserX,
   Users,
+  Youtube,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +37,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { COURSES, SECTIONS, type Course } from "@/data/courses";
 import { useLang } from "@/i18n";
 import logo from "@/assets/logo.svg";
 
@@ -72,6 +76,46 @@ type AccessUser = {
 };
 
 const SESSION_KEY = "admin_pw_session";
+
+/* ------------------------- Recipe editor state ------------------------- */
+
+type RecipeForm = {
+  slug: string;
+  section: Course["section"];
+  titleFr: string;
+  titleAr: string;
+  taglineFr: string;
+  taglineAr: string;
+  difficulty: number;
+  warningsFr: string;
+  warningsAr: string;
+  tipsFr: string;
+  tipsAr: string;
+  ingredients: string;
+  stepsFr: string;
+  stepsAr: string;
+  photoUrl: string;
+  youtubeUrl: string;
+};
+
+const EMPTY_FORM: RecipeForm = {
+  slug: "",
+  section: "menage",
+  titleFr: "",
+  titleAr: "",
+  taglineFr: "",
+  taglineAr: "",
+  difficulty: 0,
+  warningsFr: "",
+  warningsAr: "",
+  tipsFr: "",
+  tipsAr: "",
+  ingredients: "",
+  stepsFr: "",
+  stepsAr: "",
+  photoUrl: "",
+  youtubeUrl: "",
+};
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -255,6 +299,217 @@ export default function Admin() {
     [stats],
   );
 
+  // --------------------------- Recipe editor -----------------------------
+  const recipesResult = useQuery(api.recipes.listPublic, {});
+  const upsertRecipe = useMutation(api.recipes.upsertRecipe);
+  const upsertOverride = useMutation(api.recipes.upsertOverride);
+  const setRecipeVideo = useAction(api.recipes.setRecipeVideo);
+  const deleteRecipe = useMutation(api.recipes.deleteRecipe);
+
+  const [editing, setEditing] = useState<RecipeForm | null>(null);
+  const [editingSlug, setEditingSlug] = useState<string | null>(null); // null = new
+  const [recipeBusy, setRecipeBusy] = useState(false);
+  const [recipeMsg, setRecipeMsg] = useState<string | null>(null);
+  const [recipeError, setRecipeError] = useState<string | null>(null);
+
+  const baseBySlug = useMemo(() => {
+    const m = new Map(COURSES.map((c) => [c.slug, c]));
+    return m;
+  }, []);
+
+  const adminRecipeBySlug = useMemo(() => {
+    const m = new Map(
+      (recipesResult && "length" in recipesResult ? recipesResult : []).map(
+        (r: { slug: string }) => [r.slug, r],
+      ),
+    );
+    return m;
+  }, [recipesResult]);
+
+  const openNewRecipe = () => {
+    setEditing({ ...EMPTY_FORM });
+    setEditingSlug(null);
+    setRecipeMsg(null);
+    setRecipeError(null);
+  };
+
+  const openEditBase = (slug: string) => {
+    const base = baseBySlug.get(slug);
+    if (!base) return;
+    const o = adminRecipeBySlug.get(slug) as
+      | { youtubeId: string | null; photoUrl: string | null; hidden: boolean | null }
+      | undefined;
+    setEditing({
+      slug,
+      section: base.section,
+      titleFr: base.title.fr,
+      titleAr: base.title.ar,
+      taglineFr: base.tagline.fr,
+      taglineAr: base.tagline.ar,
+      difficulty: base.difficulty,
+      warningsFr: base.warnings.map((w) => w.fr).join("\n"),
+      warningsAr: base.warnings.map((w) => w.ar).join("\n"),
+      tipsFr: base.tips.map((x) => x.fr).join("\n"),
+      tipsAr: base.tips.map((x) => x.ar).join("\n"),
+      ingredients: base.ingredients
+        .map((i) => `${i.fr} | ${i.ar} | ${i.percent ?? ""}`)
+        .join("\n"),
+      stepsFr: base.steps.map((s) => s.fr).join("\n"),
+      stepsAr: base.steps.map((s) => s.ar).join("\n"),
+      photoUrl: o?.photoUrl ?? "",
+      youtubeUrl: o?.youtubeId
+        ? `https://www.youtube.com/watch?v=${o.youtubeId}`
+        : "",
+    });
+    setEditingSlug(slug);
+    setRecipeMsg(null);
+    setRecipeError(null);
+  };
+
+  const openEditCustom = (slug: string) => {
+    const r = adminRecipeBySlug.get(slug) as
+      | {
+          slug: string;
+          section: Course["section"];
+          titleFr: string;
+          titleAr: string;
+          taglineFr: string;
+          taglineAr: string;
+          difficulty: number;
+          warningsFr: string[];
+          warningsAr: string[];
+          tipsFr: string[];
+          tipsAr: string[];
+          ingredients: { fr: string; ar: string; percent: number | null }[];
+          stepsFr: string[];
+          stepsAr: string[];
+          photoUrl: string | null;
+          youtubeId: string | null;
+          hidden: boolean | null;
+        }
+      | undefined;
+    if (!r) return;
+    setEditing({
+      slug: r.slug,
+      section: r.section,
+      titleFr: r.titleFr,
+      titleAr: r.titleAr,
+      taglineFr: r.taglineFr,
+      taglineAr: r.taglineAr,
+      difficulty: r.difficulty,
+      warningsFr: r.warningsFr.join("\n"),
+      warningsAr: r.warningsAr.join("\n"),
+      tipsFr: r.tipsFr.join("\n"),
+      tipsAr: r.tipsAr.join("\n"),
+      ingredients: r.ingredients
+        .map((i) => `${i.fr} | ${i.ar} | ${i.percent ?? ""}`)
+        .join("\n"),
+      stepsFr: r.stepsFr.join("\n"),
+      stepsAr: r.stepsAr.join("\n"),
+      photoUrl: r.photoUrl ?? "",
+      youtubeUrl: r.youtubeId
+        ? `https://www.youtube.com/watch?v=${r.youtubeId}`
+        : "",
+    });
+    setEditingSlug(slug);
+    setRecipeMsg(null);
+    setRecipeError(null);
+  };
+
+  const handleSaveRecipe = async () => {
+    if (!sessionPw || !editing) return;
+    setRecipeBusy(true);
+    setRecipeError(null);
+    setRecipeMsg(null);
+    try {
+      const isBase = baseBySlug.has(editing.slug) || baseBySlug.has(editingSlug ?? "");
+      const slug = editingSlug ?? editing.slug.trim();
+      if (!slug) throw new Error("slug required");
+
+      // Parse ingredients: "FR | AR | 12" (percent optional = water/qsp)
+      const ingredients = editing.ingredients
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const [fr = "", ar = "", pct = ""] = line.split("|").map((s) => s.trim());
+          const num = parseFloat(pct.replace(",", "."));
+          return {
+            fr,
+            ar: ar || fr,
+            percent: pct && !Number.isNaN(num) ? num : null,
+          };
+        });
+
+      const splitLines = (s: string) =>
+        s.split("\n").map((l) => l.trim()).filter(Boolean);
+
+      if (isBase) {
+        await upsertOverride({
+          password: sessionPw,
+          slug,
+          titleFr: editing.titleFr.trim(),
+          titleAr: editing.titleAr.trim(),
+          taglineFr: editing.taglineFr.trim(),
+          taglineAr: editing.taglineAr.trim(),
+          difficulty: editing.difficulty,
+          photoUrl: editing.photoUrl.trim() || undefined,
+        });
+        await setRecipeVideo({
+          password: sessionPw,
+          slug,
+          youtubeUrl: editing.youtubeUrl.trim(),
+        });
+      } else {
+        await upsertRecipe({
+          password: sessionPw,
+          slug,
+          section: editing.section,
+          titleFr: editing.titleFr.trim(),
+          titleAr: editing.titleAr.trim(),
+          taglineFr: editing.taglineFr.trim(),
+          taglineAr: editing.taglineAr.trim(),
+          difficulty: editing.difficulty,
+          warningsFr: splitLines(editing.warningsFr),
+          warningsAr: splitLines(editing.warningsAr),
+          tipsFr: splitLines(editing.tipsFr),
+          tipsAr: splitLines(editing.tipsAr),
+          ingredients,
+          stepsFr: splitLines(editing.stepsFr),
+          stepsAr: splitLines(editing.stepsAr),
+          photoUrl: editing.photoUrl.trim() || undefined,
+        });
+        await setRecipeVideo({
+          password: sessionPw,
+          slug,
+          youtubeUrl: editing.youtubeUrl.trim(),
+        });
+      }
+      setRecipeMsg(t.admin.recipeSaved);
+      setEditing(null);
+      setEditingSlug(null);
+    } catch (e) {
+      setRecipeError(
+        e instanceof Error
+          ? e.message === "invalid_youtube_url"
+            ? t.admin.recipeBadVideo
+            : e.message
+          : t.admin.errPassword,
+      );
+    } finally {
+      setRecipeBusy(false);
+    }
+  };
+
+  const handleDeleteRecipe = async (slug: string) => {
+    if (!sessionPw) return;
+    try {
+      await deleteRecipe({ password: sessionPw, slug });
+    } catch (e) {
+      setRecipeError(e instanceof Error ? e.message : t.admin.errPassword);
+    }
+  };
+
   // ----------------------------- Login screen -----------------------------
   if (!sessionPw) {
     return (
@@ -411,6 +666,10 @@ export default function Admin() {
               <TabsTrigger value="users">
                 <Users className="me-2 size-4" />
                 {t.admin.tabUsers}
+              </TabsTrigger>
+              <TabsTrigger value="recipes">
+                <BookOpen className="me-2 size-4" />
+                {t.admin.tabRecipes}
               </TabsTrigger>
             </TabsList>
           </div>
@@ -809,6 +1068,386 @@ export default function Admin() {
                     ))}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ============================ RECIPES ============================ */}
+          <TabsContent value="recipes" className="mt-0 space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-display text-lg font-bold">{t.admin.recipesTitle}</h2>
+                <p className="text-xs text-muted-foreground">{t.admin.recipesDesc}</p>
+              </div>
+              <Button onClick={openNewRecipe} className="gap-2">
+                <Plus className="size-4" />
+                {t.admin.recipeNew}
+              </Button>
+            </div>
+
+            {recipeMsg && (
+              <p className="rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+                {recipeMsg}
+              </p>
+            )}
+            {recipeError && (
+              <p className="rounded-lg bg-destructive/10 px-4 py-2 text-sm text-destructive">
+                {recipeError}
+              </p>
+            )}
+
+            {/* Editor form */}
+            {editing && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    {editingSlug ? `${t.admin.recipeEditBase} — ${editingSlug}` : t.admin.recipeNew}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeSlug}
+                      </label>
+                      <Input
+                        value={editing.slug}
+                        onChange={(e) =>
+                          setEditing({
+                            ...editing,
+                            slug: e.target.value
+                              .toLowerCase()
+                              .replace(/[^a-z0-9-]/g, "-"),
+                          })
+                        }
+                        placeholder="gel-nettoyant"
+                        disabled={!!editingSlug || recipeBusy}
+                      />
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {t.admin.recipeSlugHint}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeSection}
+                      </label>
+                      <select
+                        value={editing.section}
+                        onChange={(e) =>
+                          setEditing({
+                            ...editing,
+                            section: e.target.value as Course["section"],
+                          })
+                        }
+                        disabled={!!editingSlug || recipeBusy}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                      >
+                        {SECTIONS.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name[lang]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeDiff}
+                      </label>
+                      <select
+                        value={editing.difficulty}
+                        onChange={(e) =>
+                          setEditing({ ...editing, difficulty: parseInt(e.target.value, 10) })
+                        }
+                        disabled={recipeBusy}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                      >
+                        <option value={0}>{t.dash.levels[0]}</option>
+                        <option value={1}>{t.dash.levels[1]}</option>
+                        <option value={2}>{t.dash.levels[2]}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeTitleFr}
+                      </label>
+                      <Input
+                        value={editing.titleFr}
+                        onChange={(e) => setEditing({ ...editing, titleFr: e.target.value })}
+                        disabled={recipeBusy}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeTitleAr}
+                      </label>
+                      <Input
+                        dir="rtl"
+                        value={editing.titleAr}
+                        onChange={(e) => setEditing({ ...editing, titleAr: e.target.value })}
+                        disabled={recipeBusy}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeTagFr}
+                      </label>
+                      <Input
+                        value={editing.taglineFr}
+                        onChange={(e) => setEditing({ ...editing, taglineFr: e.target.value })}
+                        disabled={recipeBusy}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeTagAr}
+                      </label>
+                      <Input
+                        dir="rtl"
+                        value={editing.taglineAr}
+                        onChange={(e) => setEditing({ ...editing, taglineAr: e.target.value })}
+                        disabled={recipeBusy}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      {t.admin.recipeIngredients}
+                    </label>
+                    <Textarea
+                      value={editing.ingredients}
+                      onChange={(e) => setEditing({ ...editing, ingredients: e.target.value })}
+                      rows={6}
+                      className="font-mono text-xs"
+                      disabled={recipeBusy}
+                      placeholder="SLES / Texapon | تيكسابون | 12\nEau | ماء |"
+                    />
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeStepsFr}
+                      </label>
+                      <Textarea
+                        value={editing.stepsFr}
+                        onChange={(e) => setEditing({ ...editing, stepsFr: e.target.value })}
+                        rows={5}
+                        disabled={recipeBusy}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeStepsAr}
+                      </label>
+                      <Textarea
+                        dir="rtl"
+                        value={editing.stepsAr}
+                        onChange={(e) => setEditing({ ...editing, stepsAr: e.target.value })}
+                        rows={5}
+                        disabled={recipeBusy}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeWarnFr}
+                      </label>
+                      <Textarea
+                        value={editing.warningsFr}
+                        onChange={(e) => setEditing({ ...editing, warningsFr: e.target.value })}
+                        rows={3}
+                        disabled={recipeBusy}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeWarnAr}
+                      </label>
+                      <Textarea
+                        dir="rtl"
+                        value={editing.warningsAr}
+                        onChange={(e) => setEditing({ ...editing, warningsAr: e.target.value })}
+                        rows={3}
+                        disabled={recipeBusy}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeTipsFr}
+                      </label>
+                      <Textarea
+                        value={editing.tipsFr}
+                        onChange={(e) => setEditing({ ...editing, tipsFr: e.target.value })}
+                        rows={3}
+                        disabled={recipeBusy}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeTipsAr}
+                      </label>
+                      <Textarea
+                        dir="rtl"
+                        value={editing.tipsAr}
+                        onChange={(e) => setEditing({ ...editing, tipsAr: e.target.value })}
+                        rows={3}
+                        disabled={recipeBusy}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipePhoto}
+                      </label>
+                      <Input
+                        value={editing.photoUrl}
+                        onChange={(e) => setEditing({ ...editing, photoUrl: e.target.value })}
+                        placeholder="https://…"
+                        disabled={recipeBusy}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                        {t.admin.recipeVideo}
+                      </label>
+                      <Input
+                        value={editing.youtubeUrl}
+                        onChange={(e) => setEditing({ ...editing, youtubeUrl: e.target.value })}
+                        placeholder="https://www.youtube.com/watch?v=…"
+                        disabled={recipeBusy}
+                      />
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {t.admin.recipeVideoHint}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button onClick={handleSaveRecipe} disabled={recipeBusy} className="gap-2">
+                      {recipeBusy ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="size-4" />
+                      )}
+                      {t.admin.genButton}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setEditing(null);
+                        setEditingSlug(null);
+                      }}
+                      disabled={recipeBusy}
+                    >
+                      {t.auth.or === "ou" ? "Annuler" : "إلغاء"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* All recipes list (base + custom) */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">{t.admin.recipesTitle}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="divide-y">
+                  {COURSES.map((c) => {
+                    const o = adminRecipeBySlug.get(c.slug) as
+                      | { youtubeId: string | null; hidden: boolean | null }
+                      | undefined;
+                    return (
+                      <div
+                        key={c.slug}
+                        className="flex flex-wrap items-center justify-between gap-3 py-3"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <BookOpen className="size-4 shrink-0 text-primary" />
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold">
+                              {c.title[lang]}
+                              {o?.hidden && (
+                                <Badge variant="destructive" className="ms-2 text-[10px]">
+                                  {t.admin.recipeHidden}
+                                </Badge>
+                              )}
+                              {o?.youtubeId && (
+                                <Badge variant="secondary" className="ms-2 text-[10px]">
+                                  <Youtube className="me-1 inline size-3" />
+                                  {t.admin.recipeHasVideo}
+                                </Badge>
+                              )}
+                            </p>
+                            <p className="truncate font-mono text-[11px] text-muted-foreground">
+                              {c.slug}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openEditBase(c.slug)}
+                        >
+                          <Pencil className="me-1.5 size-3.5" />
+                          {t.admin.recipeEditBase}
+                        </Button>
+                      </div>
+                    );
+                  })}
+                  {(recipesResult ?? []).map((r) => {
+                    const isFullCustom =
+                      r.titleFr.length > 0 && r.stepsFr.length > 0 && r.ingredients.length > 0;
+                    if (!isFullCustom) return null;
+                    return (
+                      <div
+                        key={r.slug}
+                        className="flex flex-wrap items-center justify-between gap-3 py-3"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <BookOpen className="size-4 shrink-0 text-accent-foreground" />
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold">
+                              {lang === "ar" ? r.titleAr : r.titleFr}
+                              <Badge variant="secondary" className="ms-2 text-[10px]">
+                                {t.admin.recipeCustom}
+                              </Badge>
+                              {r.youtubeId && (
+                                <Badge variant="secondary" className="ms-2 text-[10px]">
+                                  <Youtube className="me-1 inline size-3" />
+                                  {t.admin.recipeHasVideo}
+                                </Badge>
+                              )}
+                            </p>
+                            <p className="truncate font-mono text-[11px] text-muted-foreground">
+                              {r.slug}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant="outline" onClick={() => openEditCustom(r.slug)}>
+                            <Pencil className="me-1.5 size-3.5" />
+                            {t.admin.recipeEditBase}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => handleDeleteRecipe(r.slug)}
+                            aria-label={t.admin.recipeDelete}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

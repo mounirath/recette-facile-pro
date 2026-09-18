@@ -45,6 +45,10 @@ export interface Course {
   tips: { fr: string; ar: string }[];
   ingredients: Ingredient[];
   steps: { fr: string; ar: string }[];
+  /** Optional tutorial video (YouTube video id), set from the admin. */
+  youtubeId?: string | null;
+  /** Optional custom photo override (URL). */
+  photoUrl?: string | null;
 }
 
 export const SECTIONS = [

@@ -14,6 +14,7 @@ import {
   Lightbulb,
   Lock,
   LogOut,
+  Youtube as YoutubeIcon,
   Scale,
   Search,
   TriangleAlert,
@@ -27,7 +28,8 @@ import { Separator } from "@/components/ui/separator";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
 import { useLang } from "@/i18n";
-import { COURSES, SECTIONS, totalPercent, type Course } from "@/data/courses";
+import { SECTIONS, totalPercent, type Course } from "@/data/courses";
+import { useCatalog } from "@/hooks/use-catalog";
 import { CoursePhoto } from "@/components/CoursePhoto";
 import { HERO_PHOTO, EXTRA_PHOTOS } from "@/data/photos";
 import {
@@ -104,6 +106,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { t, lang, setLang } = useLang();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { courses: COURSES } = useCatalog();
   const selectedSlug = searchParams.get("course");
   const selected = selectedSlug ? COURSES.find((c) => c.slug === selectedSlug) : undefined;
 
@@ -556,6 +559,28 @@ function CourseDetail({
           </Button>
         </CardContent>
       </Card>
+
+      {/* Tutorial video */}
+      {course.youtubeId && (
+        <Card className="mt-5 overflow-hidden border-border/70 shadow-sm">
+          <CardContent className="p-6">
+            <h2 className="flex items-center gap-2 font-display text-lg font-bold">
+              <YoutubeIcon className="size-5 text-destructive" />
+              {t.dash.videoTitle}
+            </h2>
+            <div className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-black">
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${course.youtubeId}?rel=0`}
+                title={course.title[lang]}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                loading="lazy"
+                className="aspect-video w-full"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Warnings */}
       {course.warnings.length > 0 && (
