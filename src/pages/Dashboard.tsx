@@ -40,6 +40,10 @@ import {
   SoapbarIcon,
   ShampooIcon,
   BodyWashIcon,
+  CarIcon,
+  WaxIcon,
+  InteriorIcon,
+  WheelIcon,
   ChartIcon,
   SafetyIcon,
   LabelIcon,
@@ -60,6 +64,10 @@ const ICONS = {
   soapbar: SoapbarIcon,
   shampoo: ShampooIcon,
   body: BodyWashIcon,
+  car: CarIcon,
+  wax: WaxIcon,
+  interior: InteriorIcon,
+  wheel: WheelIcon,
   chart: ChartIcon,
   safety: SafetyIcon,
   label: LabelIcon,
@@ -86,7 +94,7 @@ export default function Dashboard() {
 
   const [search, setSearch] = useState("");
   const [sectionFilter, setSectionFilter] = useState<
-    "all" | "menage" | "soin" | "business"
+    "all" | "menage" | "soin" | "auto" | "business"
   >("all");
 
   const progress = useQuery(api.courses.listProgress, {}) ?? {};
@@ -248,7 +256,7 @@ export default function Dashboard() {
                 <div>
                   <p className="font-display font-bold">{t.dash.certUnlocked}</p>
                   <p className="text-sm text-muted-foreground">
-                    {t.dash.certTitle} · 18/18
+                    {t.dash.certTitle} · {COURSES.length}/{COURSES.length}
                   </p>
                 </div>
               </motion.div>

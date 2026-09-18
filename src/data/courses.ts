@@ -10,7 +10,7 @@ export interface Ingredient {
 
 export interface Course {
   slug: string;
-  section: "menage" | "soin" | "business";
+  section: "menage" | "soin" | "auto" | "business";
   icon:
     | "dish"
     | "soap"
@@ -25,6 +25,10 @@ export interface Course {
     | "soapbar"
     | "shampoo"
     | "body"
+    | "car"
+    | "wax"
+    | "interior"
+    | "wheel"
     | "chart"
     | "safety"
     | "label";
@@ -55,6 +59,15 @@ export const SECTIONS = [
       ar: "صابون، شامبو ومستحضرات عناية لطيفة على البشرة.",
     },
     icon: "soapbar" as const,
+  },
+  {
+    id: "auto" as const,
+    name: { fr: "Produits voiture", ar: "العناية بالسيارة" },
+    desc: {
+      fr: "Shampoing, cire, nettoyant intérieur et pneus : la gamme auto complète.",
+      ar: "شامبو، شمع، منظف المقصورة وتلميع الإطارات: مجموعة كاملة للسيارة.",
+    },
+    icon: "car" as const,
   },
   {
     id: "business" as const,
@@ -717,6 +730,166 @@ export const COURSES: Course[] = [
       { fr: "Ajouter le Formol puis le parfum.", ar: "أضف الفورمول ثم العطر." },
       { fr: "Compléter avec de l'eau jusqu'à 100 % et mélanger.", ar: "أكمل الماء إلى 100% واخلط." },
       { fr: "Conditionner dans des flacons transparents.", ar: "عبّئ في عبوات شفافة." },
+    ],
+  },
+  {
+    slug: "auto-shampoing",
+    section: "auto",
+    icon: "car",
+    title: { fr: "Shampoing auto concentré", ar: "شامبو السيارة المركّز" },
+    tagline: {
+      fr: "Mousse abondante qui décolle la saleté sans ternir la peinture.",
+      ar: "رغوة وفيرة تزيل الأوساخ دون أن تُضعف لمعان الطلاء.",
+    },
+    difficulty: 0,
+    warnings: [
+      {
+        fr: "Laver à l'ombre, carrosserie froide : un séchage au soleil laisse des traces.",
+        ar: "اغسل في الظل وهيكل بارد: التجفيف تحت الشمس يترك آثاراً.",
+      },
+    ],
+    tips: [
+      {
+        fr: "Utilisez deux seaux (savon / rinçage) pour ne pas replonger la saleté sur le chiffon.",
+        ar: "استعمل دلوين (صابون / شطف) كي لا تعيد الأوساخ إلى القماش.",
+      },
+    ],
+    ingredients: [
+      { fr: "SLES / Texapon", ar: "SLES / تيكسابون", percent: 12 },
+      { fr: "Bétaïne (CAPB)", ar: "بيتائين (CAPB)", percent: 4 },
+      { fr: "Cocamide DEA", ar: "كواميد DEA", percent: 2 },
+      { fr: "Sel alimentaire (NaCl)", ar: "ملح الطعام (NaCl)", percent: 1 },
+      { fr: "Formol", ar: "فورمول", percent: 0.2 },
+      { fr: "Parfum", ar: "عطر", percent: 0.3 },
+      { fr: "Eau", ar: "ماء", percent: null },
+    ],
+    steps: [
+      { fr: "Verser l'eau dans le seau de préparation.", ar: "ضع الماء في دلو التحضير." },
+      { fr: "Ajouter le SLES/Texapon en remuant doucement (limiter la mousse).", ar: "أضف SLES أو تيكسابون مع التحريك بلطف (لتقليل الرغوة)." },
+      { fr: "Ajouter la Bétaïne puis le Cocamide DEA.", ar: "أضف البيتائين ثم الكواميد DEA." },
+      { fr: "Épaissir au sel jusqu'à la viscosité voulue.", ar: "زِد القوام بالملح حتى اللزوجة المطلوبة." },
+      { fr: "Ajouter le Formol puis le parfum.", ar: "أضف الفورمول ثم العطر." },
+      { fr: "Compléter avec de l'eau jusqu'à 100 % et mélanger doucement.", ar: "أكمل الماء إلى 100% واخلط بلطف." },
+      { fr: "Diluer 1 bouchon pour 5 L d'eau au lavage.", ar: "خفّف غطاء واحداً في 5 لتر ماء عند الغسل." },
+    ],
+  },
+  {
+    slug: "auto-cire",
+    section: "auto",
+    icon: "wax",
+    title: { fr: "Cire brillance rapide (spray wax)", ar: "شمع السيارة السريع (بخاخ)" },
+    tagline: {
+      fr: "Brillance miroir et glisse en 10 minutes, sans polissage.",
+      ar: "لمعان مرآوي وانزلاق في 10 دقائق، دون تلميع.",
+    },
+    difficulty: 1,
+    warnings: [
+      {
+        fr: "Ne jamais appliquer sur surfaces chaudes ou en plein soleil.",
+        ar: "لا تستعمله أبداً على أسطح ساخنة أو تحت الشمس المباشرة.",
+      },
+    ],
+    tips: [
+      {
+        fr: "Vaporiser sur une微 zone, essuyer immédiatement avec une microfibre propre.",
+        ar: "رشّ على منطقة صغيرة، وامسح فوراً بقطعة ميكروفايبر نظيفة.",
+      },
+    ],
+    ingredients: [
+      { fr: "Eau déminéralisée", ar: "ماء مقطر", percent: null },
+      { fr: "Émulsion de silicone (E2)", ar: "مستحلب سيليكون (E2)", percent: 8 },
+      { fr: "Cationic surfactant esterquat", ar: "منظف كاتيوني إستر كوات", percent: 3 },
+      { fr: "Alcool isopropylique (IPA)", ar: "كحول إيزوبروبيلي", percent: 5 },
+      { fr: "Parfum", ar: "عطر", percent: 0.2 },
+      { fr: "Conservateur", ar: "مادة حافظة", percent: 0.1 },
+    ],
+    steps: [
+      { fr: "Verser l'eau déminéralisée dans le récipient.", ar: "ضع الماء المقطر في الوعاء." },
+      { fr: "Ajouter l'esterquat et mélanger jusqu'à dissolution.", ar: "أضف الإستر كوات واخلط حتى الذوبان." },
+      { fr: "Incorporer doucement l'émulsion de silicone en remuant (pas de fouet vigoureux).", ar: "أضف مستحلب السيليكون ببطء مع التحريك (بدون خفق عنيف)." },
+      { fr: "Ajouter l'IPA, le parfum et le conservateur.", ar: "أضف الكحول الإيزوبروبيلي والعطر والمادة الحافظة." },
+      { fr: "Compléter avec l'eau jusqu'à 100 %, mélanger doucement.", ar: "أكمل الماء إلى 100% واخلط بلطف." },
+      { fr: "Conditionner en spray et agiter avant emploi (émulsion).", ar: "عبّئ في بخاخ ورجّه قبل الاستعمال (مستحلب)." },
+    ],
+  },
+  {
+    slug: "auto-interieur",
+    section: "auto",
+    icon: "interior",
+    title: { fr: "Nettoyant intérieur multi-surfaces", ar: "منظف المقصورة متعدد الأسطح" },
+    tagline: {
+      fr: "Tableau de bord, plastiques et simili : propre, satiné, sans gras.",
+      ar: "طبلون، بلاستيك وجلد صناعي: نظيف، ساتان وبدون دهنية.",
+    },
+    difficulty: 0,
+    warnings: [
+      {
+        fr: "Tester d'abord sur une zone cachée (cuir et écrans).",
+        ar: "جرّبه أولاً على منطقة خفية (الجلد والشاشات).",
+      },
+    ],
+    tips: [
+      {
+        fr: "Une dosette de silicone suffit : trop = surfaces glissantes et reflets gras.",
+        ar: "جرعة صغيرة من السيليكون تكفي: الزيادة = أسطح زلقة ولمعة دهنية.",
+      },
+    ],
+    ingredients: [
+      { fr: "Eau", ar: "ماء", percent: null },
+      { fr: "SLES / Texapon", ar: "SLES / تيكسابون", percent: 3 },
+      { fr: "Bétaïne (CAPB)", ar: "بيتائين (CAPB)", percent: 1 },
+      { fr: "Butyl Glycol", ar: "بوتيل غليكول", percent: 2 },
+      { fr: "Émulsion de silicone (effet satiné)", ar: "مستحلب سيليكون (لمعة ساتان)", percent: 1 },
+      { fr: "Formol", ar: "فورمول", percent: 0.2 },
+      { fr: "Parfum", ar: "عطر", percent: 0.3 },
+    ],
+    steps: [
+      { fr: "Verser l'eau dans le récipient.", ar: "ضع الماء في الوعاء." },
+      { fr: "Dissoudre le SLES puis la Bétaïne en remuant doucement.", ar: "أذب SLES ثم البيتائين مع التحريك بلطف." },
+      { fr: "Ajouter le Butyl Glycol.", ar: "أضف البوتيل غليكول." },
+      { fr: "Incorporer l'émulsion de silicone et bien homogénéiser.", ar: "أضف مستحلب السيليكون واخلط جيداً حتى التجانس." },
+      { fr: "Ajouter le Formol puis le parfum.", ar: "أضف الفورمول ثم العطر." },
+      { fr: "Compléter avec de l'eau jusqu'à 100 %.", ar: "أكمل الماء إلى 100%." },
+      { fr: "Conditionner en spray ; secouer avant emploi.", ar: "عبّئ في بخاخ؛ رجّه قبل الاستعمال." },
+    ],
+  },
+  {
+    slug: "auto-pneus",
+    section: "auto",
+    icon: "wheel",
+    title: { fr: "Rénovateur pneus et plastiques noirs", ar: "مجدّد الإطارات والبلاستيك الأسود" },
+    tagline: {
+      fr: "Noir profond longue tenue, fini satiné non gras.",
+      ar: "أسود عميق يدوم طويلاً، بلمعة ساتان غير دهنية.",
+    },
+    difficulty: 1,
+    warnings: [
+      {
+        fr: "Ne jamais appliquer sur la bande de roulement ni les pédales (glissance).",
+        ar: "لا تطبقه أبداً على منطقة التصاق الإطار أو الدواسات (انزلاق).",
+      },
+    ],
+    tips: [
+      {
+        fr: "Appliquer sur pneu propre et sec, laisser pénétrer 5 min puis essuyer l'excès.",
+        ar: "طبّقه على إطار نظيف وجاف، اتركه 5 دقائق ثم امسح الزائد.",
+      },
+    ],
+    ingredients: [
+      { fr: "Eau", ar: "ماء", percent: null },
+      { fr: "Émulsion de silicone haute viscosité", ar: "مستحلب سيليكون عالي اللزوجة", percent: 12 },
+      { fr: "Cationic surfactant esterquat", ar: "منظف كاتيوني إستر كوات", percent: 2 },
+      { fr: "Alcool isopropylique (IPA)", ar: "كحول إيزوبروبيلي", percent: 3 },
+      { fr: "Parfum", ar: "عطر", percent: 0.2 },
+      { fr: "Conservateur", ar: "مادة حافظة", percent: 0.1 },
+    ],
+    steps: [
+      { fr: "Verser l'eau dans le récipient.", ar: "ضع الماء في الوعاء." },
+      { fr: "Ajouter l'esterquat et mélanger.", ar: "أضف الإستر كوات واخلط." },
+      { fr: "Incorporer lentement l'émulsion de silicone en remuant.", ar: "أضف مستحلب السيليكون ببطء مع التحريك." },
+      { fr: "Ajouter l'IPA, le parfum et le conservateur.", ar: "أضف الكحول والعطر والمادة الحافظة." },
+      { fr: "Compléter avec l'eau jusqu'à 100 %.", ar: "أكمل الماء إلى 100%." },
+      { fr: "Conditionner en spray épais ou flacon applicateur mousse.", ar: "عبّئ في بخاخ أو عبوة إسفنجية للتطبيق." },
     ],
   },
   {

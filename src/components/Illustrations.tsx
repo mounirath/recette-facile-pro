@@ -183,6 +183,57 @@ export function LabelIcon({ className }: IconProps) {
   );
 }
 
+export function CarIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden>
+      <path d="M8 30c0-3 2-5 5-6l4-8a4 4 0 0 1 3.4-2h7.2a4 4 0 0 1 3.4 2l4 8c3 1 5 3 5 6v4a2 2 0 0 1-2 2h-2a6 6 0 0 1-11.5 0h-3a6 6 0 0 1-11.5 0H10a2 2 0 0 1-2-2v-4Z" className="fill-primary/25" />
+      <path d="M18 16.5 15.6 23h7.4v-7h-3.4c-.7 0-1.3.2-1.6.5Z" className="fill-card/90" />
+      <path d="M25 16h3.4c.7 0 1.3.2 1.6.5l2.4 6.5H25v-7Z" className="fill-card/90" />
+      <circle cx="17" cy="34" r="4" className="fill-primary/40" />
+      <circle cx="31" cy="34" r="4" className="fill-primary/40" />
+      <path d="M12 24h24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-primary/60" />
+      <circle cx="41" cy="12" r="2.5" className="fill-accent" />
+    </svg>
+  );
+}
+
+export function WaxIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden>
+      <rect x="10" y="16" width="28" height="24" rx="5" className="fill-primary/20" />
+      <rect x="16" y="8" width="16" height="8" rx="2" className="fill-primary/40" />
+      <path d="M14 24h20M14 29h20M14 34h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-primary/55" />
+      <path d="M36 10c3 1 5 3.5 5 6.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-accent" />
+      <circle cx="36" cy="7" r="2" className="fill-accent" />
+    </svg>
+  );
+}
+
+export function InteriorIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden>
+      <path d="M8 34c6-10 16-16 32-16v10a24 24 0 0 1-24 12l-8-2v-4Z" className="fill-primary/25" />
+      <path d="M14 32c4-6 12-10 22-10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-primary/60" />
+      <path d="M12 28c2-3 5-6 9-8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-primary/45" />
+      <circle cx="36" cy="24" r="3" className="fill-accent/70" />
+      <path d="M8 38h32" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-primary/70" />
+    </svg>
+  );
+}
+
+export function WheelIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden>
+      <circle cx="24" cy="24" r="16" className="fill-primary/20" />
+      <circle cx="24" cy="24" r="9" className="fill-card/80" />
+      <circle cx="24" cy="24" r="3" className="fill-primary/50" />
+      <path d="M24 8v7M24 33v7M8 24h7M33 24h7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-primary/60" />
+      <path d="M13 13l5 5M30 30l5 5M35 13l-5 5M13 35l5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-primary/40" />
+      <circle cx="38" cy="10" r="2" className="fill-accent" />
+    </svg>
+  );
+}
+
 export function HeroBottles({ className }: IconProps) {
   return (
     <svg viewBox="0 0 220 160" fill="none" className={className} aria-hidden>
